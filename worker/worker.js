@@ -21,7 +21,7 @@
 const SITE = "iptvmapletv.com";
 const SITE_URL = "https://iptvmapletv.com";
 const PANEL_API = "https://activationpanel.ru/api/api.php";
-const PANEL_HOST = "http://line.truthdaily.me";
+const PANEL_HOST = "http://vpn.fanjerseysonline.com";
 const PANEL_PACK = "USA - All";
 const FROM_EMAIL = "IPTVMaple <help@iptvmapletv.com>";
 const ADMIN_EMAIL = "help@iptvmapletv.com";
