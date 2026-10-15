@@ -25,7 +25,7 @@ GOOGLE_TAGS = ["GT-WF62KHHF", "G-JJR5ECP8RV"]
 REDDIT_PIXEL = "a2_g8z3rkvzo68a"
 GOOGLE_SITE_VERIFICATION = "9QinAgZmvCoRQKS99jjmNbTDzV5TcQVUZ8VnO2poI0M"
 
-PROMO = ("🎁 Refer 1 friend · get 1 year FREE", "/refer-a-friend/")
+PROMO = ("🎁 Refer 1 friend · get 6 months FREE", "/refer-a-friend/")
 
 NAV = [
     ("Home", "/"),

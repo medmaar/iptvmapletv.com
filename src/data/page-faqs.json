@@ -146,7 +146,7 @@
  "refer-a-friend": [
   {
    "q": "How does the IPTVMaple referral program work?",
-   "a": "<p>Fill in the form with your details and your friend’s. When your friend subscribes to a 12-month plan and their payment is verified, we add one year to your subscription.</p>"
+   "a": "<p>Fill in the form with your details and your friend’s. When your friend subscribes to a 12-month plan and their payment is verified, we add 6 months to your subscription.</p>"
   },
   {
    "q": "Who counts as a valid referral?",
@@ -154,10 +154,10 @@
   },
   {
    "q": "Is there a limit to how many friends I can refer?",
-   "a": "<p>No. Every successful referral adds another 12 months to your subscription.</p>"
+   "a": "<p>No. Every successful referral adds another 6 free months to your subscription.</p>"
   },
   {
-   "q": "When do I receive my free year?",
+   "q": "When do I receive my 6 free months?",
    "a": "<p>After the referred friend’s payment is verified. We contact you to confirm.</p>"
   },
   {

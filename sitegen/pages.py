@@ -520,10 +520,10 @@ def referral():
     steps = [
         ("Fill in the form", "Enter your details and your friend’s: name, phone and email."),
         ("Your friend subscribes", "They buy any 12-month IPTVMaple plan."),
-        ("You get 1 year free", "Once their payment is verified, we add 12 months to your account."),
+        ("You get 6 months free", "Once their payment is verified, we add 6 months to your account."),
     ]
     steps_html = "".join(f'<div class="card step reveal" style="--d:{i * .08:.2f}s"><h3>{t}</h3><p>{d}</p></div>' for i, (t, d) in enumerate(steps))
-    body = f"""{page_hero('Refer a friend, <span class="nowrap">get <span class="grad-text">1 year free</span></span>', "Fill in the form below. When your friend subscribes for a year, you get 12 months free.", "Referral program", [("Home", "/"), ("Referral", "")])}
+    body = f"""{page_hero('Refer a friend, <span class="nowrap">get <span class="grad-text">6 months free</span></span>', "Fill in the form below. When your friend subscribes for a year, you get 6 months free.", "Referral program", [("Home", "/"), ("Referral", "")])}
 <section class="section section--after-hero">
   <div class="container narrow">
     <div class="order-card reveal" id="referral-form">
@@ -535,7 +535,7 @@ def referral():
       <div class="form-success" data-success hidden tabindex="-1" role="status">
         <div class="success-mark">{icon("check")}</div>
         <h2>Referral received!</h2>
-        <p>Thank you! We’ve got your referral. As soon as your friend’s 12-month plan is paid, we’ll add <b>1 year free</b> to your account and let you know on WhatsApp.</p>
+        <p>Thank you! We’ve got your referral. As soon as your friend’s 12-month plan is paid, we’ll add <b>6 months free</b> to your account and let you know on WhatsApp.</p>
         <div class="btn-row">
           <a class="btn btn--wa btn--lg" href="{C.WHATSAPP_URL}" target="_blank" rel="noopener">{icon("whatsapp")} Confirm on WhatsApp</a>
           <button class="btn btn--ghost btn--lg" type="button" data-success-again>Refer another friend</button>
@@ -546,7 +546,7 @@ def referral():
 </section>
 <section class="section section--tight" style="padding-top:0">
   <div class="container">
-    {section_head("How it works", "3 steps to your free year", "")}
+    {section_head("How it works", "3 steps to 6 free months", "")}
     <div class="steps">{steps_html}</div>
     <div class="card reveal ref-rules"><h2 class="h3">Rules</h2>{checks(r["rules"])}</div>
   </div>
@@ -556,8 +556,8 @@ def referral():
 <p>Referral credit applies to paid plans. If your friend is not sure yet, send them to the <a href="/try-iptv-canada/">free 24-hour trial</a> first, or to <a href="/how-it-works/">how it works</a> and the <a href="/iptv-plans-canada/">plans</a>. Questions about the programme? <a href="/contact/">Contact support</a> or read the <a href="/terms/">terms</a>.</p>
 </div></div></section>
 {page_faq("refer-a-friend")}
-{cta_band("Not a customer yet?", "Join IPTVMaple today, then start earning free years by sharing it with friends.")}"""
-    return Page("/refer-a-friend/", "Refer a Friend – Get 1 Year Free | IPTVMaple", "Refer 1 friend to IPTVMaple and get +1 year free. Unlimited referrals — every successful referral adds 12 more months to your subscription.",
+{cta_band("Not a customer yet?", "Join IPTVMaple today, then start earning free months by sharing it with friends.")}"""
+    return Page("/refer-a-friend/", "Refer a Friend – Get 6 Months Free | IPTVMaple", "Refer 1 friend to IPTVMaple and get 6 months free. Unlimited referrals — every successful referral adds 6 more months to your subscription.",
                 body, og_image=meta["og_image"], published=meta["published"], modified=meta["modified"],
                 jsonld=[breadcrumb_ld([("Home", "/"), ("Referral", "/refer-a-friend/")])])
 

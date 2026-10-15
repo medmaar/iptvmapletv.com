@@ -128,7 +128,7 @@ PAGES = [
 <li><strong>Start with the free trial.</strong> The <a href="/try-iptv-canada/">free 24-hour trial</a> costs nothing and needs no credit card.</li>
 <li><strong>Choose the 12-month plan if you like it.</strong> It has the lowest price per month, and the <a href="/refund/">7-day money-back guarantee</a> still applies.</li>
 <li><strong>Match screens to real use.</strong> Don’t pay for five screens if two are ever on together.</li>
-<li><strong>Use the referral program.</strong> When a friend subscribes to a 12-month plan, you get a free year. See <a href="/refer-a-friend/">refer a friend</a>.</li>
+<li><strong>Use the referral program.</strong> When a friend subscribes to a 12-month plan, you get 6 months free. See <a href="/refer-a-friend/">refer a friend</a>.</li>
 </ol>
 
 <h2>IPTV deals and promotions</h2>
