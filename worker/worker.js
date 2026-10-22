@@ -282,26 +282,25 @@ const EMAIL_BRAND = {
   "url": "https://iptvmapletv.com",
   "lang": "en",
   "email": "help@iptvmapletv.com",
-  "light": false,
   "logo": {
-    "src": "https://iptv-trial-iptvmapletv.medmaar.workers.dev/email/logo.png?v=1",
+    "src": "https://iptv-trial-iptvmapletv.medmaar.workers.dev/email/logo.png?v=2",
     "w": 190,
     "h": 44
   },
-  "tagline": "Live TV, sports, movies &amp; series in 4K",
-  "accent": "#FF2D4A",
-  "accentText": "#FF2D4A",
-  "onAccent": "#FFFFFF",
   "c": {
-    "page": "#06070B",
-    "surface": "#101115",
-    "raised": "#17181C",
-    "line": "#2B2C30",
-    "head": "#FFFFFF",
-    "soft": "#E1E1E2",
-    "text": "#C3C3C4",
-    "muted": "#8F8F91",
-    "faint": "#6F6F71"
+    "page": "#F2F3F5",
+    "card": "#FFFFFF",
+    "head": "#06070B",
+    "headLine": "#06070B",
+    "ink": "#14171F",
+    "body": "#4B5161",
+    "muted": "#8A8F9C",
+    "line": "#E6E8EC",
+    "box": "#F7F8FA",
+    "accent": "#CC243B",
+    "btn": "#FF2D4A",
+    "onBtn": "#FFFFFF",
+    "step": "#06070B"
   },
   "wa": "17828026280",
   "waLabel": "+1 782-802-6280",
@@ -321,40 +320,107 @@ const EMAIL_BRAND = {
     "post": "",
     "dec": "."
   },
-  "deviceLabel": "",
-  "plans": [
+  "grid": [
     {
-      "months": 1,
-      "price": 9,
-      "url": "/1-month-iptv-canada/",
-      "was": 18
+      "devices": 1,
+      "plans": [
+        {
+          "months": 1,
+          "price": 9,
+          "url": "/1-month-iptv-canada/"
+        },
+        {
+          "months": 6,
+          "price": 39,
+          "url": "/6-month-iptv-unlimited/"
+        },
+        {
+          "months": 12,
+          "price": 49,
+          "url": "/12-month-iptv-unlimited/"
+        }
+      ]
     },
     {
-      "months": 6,
-      "price": 39,
-      "url": "/6-month-iptv-unlimited/",
-      "was": 78
+      "devices": 2,
+      "plans": [
+        {
+          "months": 1,
+          "price": 18,
+          "url": "/best-iptv-for-2-devices-monthly/"
+        },
+        {
+          "months": 6,
+          "price": 69,
+          "url": "/6-months-iptv-subscription/"
+        },
+        {
+          "months": 12,
+          "price": 89,
+          "url": "/12-month-iptv-2-devices/"
+        }
+      ]
     },
     {
-      "months": 12,
-      "price": 49,
-      "url": "/12-month-iptv-unlimited/",
-      "was": 98
+      "devices": 3,
+      "plans": [
+        {
+          "months": 1,
+          "price": 27,
+          "url": "/1-month-iptv-3-devices/"
+        },
+        {
+          "months": 6,
+          "price": 105,
+          "url": "/6-month-iptv-3-devices/"
+        },
+        {
+          "months": 12,
+          "price": 135,
+          "url": "/iptvmaple-premium-iptv-streaming-for-ultimate-entertainment/"
+        }
+      ]
+    },
+    {
+      "devices": 4,
+      "plans": [
+        {
+          "months": 1,
+          "price": 36,
+          "url": "/1-month-iptv-4-devices/"
+        },
+        {
+          "months": 6,
+          "price": 140,
+          "url": "/6-month-iptv-4-devices/"
+        },
+        {
+          "months": 12,
+          "price": 180,
+          "url": "/12-month-iptv-4-devices/"
+        }
+      ]
+    },
+    {
+      "devices": 5,
+      "plans": [
+        {
+          "months": 1,
+          "price": 45,
+          "url": "/iptv-subscription-2/"
+        },
+        {
+          "months": 6,
+          "price": 175,
+          "url": "/6-month-iptv-5-devices/"
+        },
+        {
+          "months": 12,
+          "price": 225,
+          "url": "/12-month-iptv-canada/"
+        }
+      ]
     }
-  ],
-  "highlights": [
-    [
-      "🥊",
-      "PPV, UFC, Boxing &amp; F1"
-    ],
-    [
-      "🏀",
-      "NBA, NHL &amp; NFL packages"
-    ],
-    [
-      "🎬",
-      "300,000+ movies &amp; series"
-    ]
   ]
 };
 
@@ -364,88 +430,72 @@ const EMAIL_LOGO_PNG = "iVBORw0KGgoAAAANSUhEUgAAAXwAAABYCAMAAADBc7xsAAABgFBMVEVe
 const EMAIL_TEXT = {
   "hi": "Hi {name},",
   "hiAnon": "Hi there,",
-  "teamSign": "See you on the big screen,",
-  "team": "The {brand} Team",
-  "xtream": "Xtream Codes login",
+  "w_pre": "Your login details are inside. Setup takes about 2 minutes.",
+  "w_intro": "Thank you for choosing {brand}. Your 24-hour free trial is active now, with every channel, movie and series unlocked. Here are your login details.",
+  "loginTitle": "Your login details",
+  "loginAgain": "Your login details (unchanged)",
+  "xtream": "Xtream Codes",
   "server": "Server",
   "username": "Username",
   "password": "Password",
   "m3u": "M3U link",
-  "m3uHint": "For apps that ask for a single playlist link",
-  "passLabel": "Your access pass",
-  "admit": "Admit 1 · 24h",
-  "credsAgain": "Your login, in case you need it",
-  "w_pre": "Your 24-hour pass is live. Your login is inside and setup takes about 2 minutes.",
-  "w_eyebrow": "Free trial activated",
-  "w_title": "Your 24-hour pass is live.",
-  "w_lead": "We've unlocked every country and every language so you can test absolutely everything. Go on, push it to its limits.",
-  "w_note": "Channel list feels long? Just ask and we'll hide the regions or categories you don't need.",
-  "stepsTitle": "On screen in 3 steps",
+  "howTitle": "How to set it up",
   "steps": [
     [
       "Install an IPTV app",
-      "IPTV Smarters Pro, TiviMate or IBO Player, on Firestick, Smart TV, Android, iPhone or PC."
+      "IPTV Smarters Pro or TiviMate work on Firestick, Android TV, Smart TVs, iPhone, Android and PC."
     ],
     [
-      "Enter your login",
-      "Choose Xtream Codes and type in the server, username and password above, or paste the M3U link."
+      "Add your account",
+      "Choose <strong>Xtream Codes</strong> and enter the server, username and password above. If your app asks for a playlist link, paste the M3U link instead."
     ],
     [
-      "Press play",
-      "Open Live TV and enjoy. That's it."
+      "Start watching",
+      "Open Live TV, Movies or Series. Everything is unlocked for 24 hours."
     ]
   ],
-  "tryTitle": "Try these before your pass runs out",
-  "no": "No.",
-  "f_helpTitle": "Rather talk it through?",
-  "helpTitle": "Need a hand with the setup?",
-  "helpBtn": "WhatsApp us",
-  "helpLine": "Or just reply to this email. Real people, quick answers.",
-  "r_pre": "About 4 hours left on your free trial. Keep the same login and make it permanent.",
-  "r_eyebrow": "Trial ending soon",
-  "r_title": "4 hours left on your pass.",
-  "r_lead": "Don't let the screen go dark. Keep the same login, the same quality and every channel. Just make it permanent.",
-  "r_used": "20h watched",
-  "r_left": "4h left",
-  "f_pre": "Your free trial has ended. Pick a plan and you're back in within minutes.",
-  "f_eyebrow": "Trial ended",
-  "f_title": "That was the trailer.<br>Ready for the full movie?",
-  "f_lead": "Your 24 hours are up, but everything you watched is still right here. Pick a plan below and you'll be back in within minutes, with the same quality and no interruptions.",
-  "plansTitle": "Pick your plan",
-  "plansSub": "Tap a plan to open its page and order in about a minute.",
-  "perMonth": "just {price} a month",
-  "perMonthShort": "{price} a month",
+  "helpSetup": "Need help with the setup?",
+  "helpPlans": "Questions before you subscribe?",
+  "helpChoose": "Not sure which plan is right for you?",
+  "helpLine": "Reply to this email or message us on {wa}. We usually answer within minutes.",
+  "signWelcome": "Enjoy your trial,",
+  "signFollow": "Best regards,",
+  "team": "The {brand} Team",
+  "r_pre": "About 4 hours left. Subscribe now and keep the same login.",
+  "r_hello": "Just a quick heads-up about your free trial.",
+  "r_title": "Your trial ends in about 4 hours",
+  "r_text": "Enjoying {brand}? Subscribe now and keep watching without interruption. Your login stays exactly the same, so there is nothing to set up again.",
+  "f_pre": "Your trial has ended. Pick a plan and you are back on the same login within minutes.",
+  "f_hello": "Thank you for trying {brand}.",
+  "f_title": "Your free trial has ended",
+  "f_text": "Subscribe today and you are back on the same login within minutes, with every channel, movie and series.",
+  "f_from": "Plans start at {price}.",
+  "subscribe": "Subscribe now",
+  "plansTitle": "Choose your plan",
+  "plansSub": "Tap any plan to go straight to its page.",
+  "device1": "1 Device",
+  "deviceN": "{n} Devices",
+  "screens1": "watch on one screen",
+  "screensN": "watch on {n} screens at once",
   "m1": "1 Month",
   "mN": "{n} Months",
-  "device": "1 device",
-  "choose": "Choose",
-  "chooseFeatured": "Get this plan →",
-  "badgeBest": "Best value",
-  "badgePopular": "Most popular",
-  "allPlans": "Compare all plans →",
-  "replyTitle": "The fastest way?",
-  "replyBody": "Simply reply <strong>\"YES\"</strong> to this email and we'll activate your subscription in minutes. No form, no hassle.",
-  "trust": [
-    "Activated in minutes",
-    "The quality you just tried",
-    "Real people on WhatsApp"
-  ],
-  "ps": "Not sure which plan fits? Reply with how many screens you watch on and we'll pick the right one for you.",
-  "f_help": "Help me choose on WhatsApp",
-  "footerWhy": "You're receiving this because you requested a free trial on {domain}.",
+  "year": "1 Year",
+  "buy": "Buy",
+  "replyYes": "Prefer to skip the form? Reply <strong>YES</strong> to this email and we will activate your subscription for you.",
+  "footerWhy": "You are receiving this email because you requested a free trial on {domain}.",
   "plansLink": "Plans",
   "waText": "Hi {brand}! I have a question about my free trial."
 };
 
 // Trial email kit: welcome, 4-hours-left reminder and trial-ended follow-up.
-// Editorial layout: the site's own logo, serif headlines, hairline rules, restrained colour.
-// Table-based and inline-styled so it holds up in Gmail, Outlook, Apple Mail and Yahoo,
-// on phones and desktops, in light and dark mode.
+// Simple layout: the site's logo on top, a greeting, the login details as the highlight,
+// then the setup steps. The two follow-ups invite the customer to subscribe and list
+// every plan from 1 to 5 devices, each one linking to its own page.
+// Table-based and inline-styled so it holds up in Gmail, Outlook, Apple Mail and Yahoo.
 // Needs EMAIL_BRAND (site look, plans, contacts) and EMAIL_TEXT (copy) defined above it.
 
-const TK_SERIF = "'Playfair Display',Georgia,'Times New Roman',Times,serif";
-const TK_SANS = "'Helvetica Neue',Helvetica,Arial,sans-serif";
-const TK_MONO = "'SF Mono',SFMono-Regular,Menlo,Consolas,'Liberation Mono','Courier New',monospace";
+const TK_FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+const TK_MONO = "SFMono-Regular,Menlo,Consolas,'Liberation Mono','Courier New',monospace";
 
 function tkEsc(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -453,6 +503,10 @@ function tkEsc(v) {
 
 function tkFmt(str, vars = {}) {
   return String(str).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+}
+
+function tkT(key, vars = {}) {
+  return tkFmt(EMAIL_TEXT[key], { brand: tkEsc(EMAIL_BRAND.name), domain: EMAIL_BRAND.domain, ...vars });
 }
 
 function tkHi(name) {
@@ -473,8 +527,8 @@ function tkLink(url, campaign) {
   return abs + (abs.includes("?") ? "&" : "?") + "utm_source=trial_email&utm_medium=email&utm_campaign=" + campaign;
 }
 
-function tkWa(text) {
-  return `https://wa.me/${EMAIL_BRAND.wa}?text=${encodeURIComponent(tkFmt(text, { brand: EMAIL_BRAND.name }))}`;
+function tkWa() {
+  return `https://wa.me/${EMAIL_BRAND.wa}?text=${encodeURIComponent(tkFmt(EMAIL_TEXT.waText, { brand: EMAIL_BRAND.name }).replace(/&nbsp;/g, " "))}`;
 }
 
 function tkServer(m3uUrl) {
@@ -495,60 +549,52 @@ function tkLogoResponse(request) {
 function tkShell(preheader, body) {
   const B = EMAIL_BRAND, C = B.c, T = EMAIL_TEXT;
   return `<!DOCTYPE html>
-<html lang="${B.lang}" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="${B.lang}" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="x-apple-disable-message-reformatting">
 <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
-<meta name="color-scheme" content="${B.light ? "light dark" : "dark light"}">
-<meta name="supported-color-schemes" content="${B.light ? "light dark" : "dark light"}">
+<meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
 <title>${tkEsc(B.name)}</title>
-<!--[if !mso]><!--><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet"><!--<![endif]-->
 <style>
   body,table,td,a { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
   table,td { mso-table-lspace:0pt; mso-table-rspace:0pt; }
   img { -ms-interpolation-mode:bicubic; border:0; outline:none; text-decoration:none; }
   a { text-decoration:none; }
-  .tk-serif { font-variant-numeric:lining-nums; -webkit-font-feature-settings:'lnum'; font-feature-settings:'lnum'; }
   @media only screen and (max-width:620px) {
-    .tk-outer { padding:0 !important; }
-    .tk-card { border-radius:0 !important; border-left:0 !important; border-right:0 !important; }
-    .tk-pad { padding-left:24px !important; padding-right:24px !important; }
-    .tk-h1 { font-size:32px !important; line-height:38px !important; }
-    .tk-val { font-size:16px !important; }
-    .tk-col { display:block !important; width:100% !important; box-sizing:border-box; padding-left:0 !important; padding-right:0 !important; }
-    .tk-gap { padding-bottom:18px !important; }
-    .tk-hide-sm { display:none !important; }
-    .tk-trust { border-left:0 !important; padding:10px 6px !important; }
-    .tk-left { text-align:left !important; }
-    .tk-price { font-size:46px !important; line-height:50px !important; }
+    .tk-outer { padding:12px 8px !important; }
+    .tk-pad { padding-left:22px !important; padding-right:22px !important; }
+    .tk-box { padding-left:18px !important; padding-right:18px !important; }
+    .tk-lbl { display:block !important; width:100% !important; padding:12px 0 2px !important; }
+    .tk-val { display:block !important; width:100% !important; padding:0 0 12px !important; border-top:0 !important; }
+    .tk-cell { display:inline-block !important; width:50% !important; box-sizing:border-box; }
+    .tk-cl { padding:0 4px 8px 0 !important; }
+    .tk-cr { padding:0 0 8px 4px !important; }
+    .tk-h1 { font-size:22px !important; line-height:29px !important; }
   }
 </style>
-<!--[if mso]><style>.tk-serif { font-family:Georgia,serif !important; } * { font-family:Arial,sans-serif; }</style><![endif]-->
 </head>
 <body style="margin:0;padding:0;width:100%;background-color:${C.page};" bgcolor="${C.page}">
-<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">${tkEsc(preheader)}${"&#847;&zwnj;&nbsp;".repeat(40)}</div>
+<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">${preheader}${"&#847;&zwnj;&nbsp;".repeat(40)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.page}" style="background-color:${C.page};">
-<tr><td align="center" class="tk-outer" style="padding:36px 12px 40px;">
+<tr><td align="center" class="tk-outer" style="padding:24px 10px;">
 <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
-  <tr><td align="center" style="padding:4px 20px 30px;">
-    <a href="${tkLink("/", "header")}" target="_blank" style="text-decoration:none;"><img src="${B.logo.src}" width="${B.logo.w}" height="${B.logo.h}" alt="${tkEsc(B.name)}" style="display:block;margin:0 auto;width:${B.logo.w}px;max-width:100%;height:auto;color:${C.head};font:600 24px ${TK_SERIF};"></a>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.card}" style="max-width:600px;background-color:${C.card};border-radius:10px;border-collapse:separate;font-family:${TK_FONT};">
+  <tr><td align="center" bgcolor="${C.head}" style="background-color:${C.head};border-bottom:1px solid ${C.headLine};border-radius:10px 10px 0 0;padding:24px 20px;">
+    <a href="${tkLink("/", "header")}" target="_blank" style="text-decoration:none;"><img src="${B.logo.src}" width="${B.logo.w}" height="${B.logo.h}" alt="${tkEsc(B.name)}" style="display:block;margin:0 auto;width:${B.logo.w}px;max-width:100%;height:auto;color:${C.head === "#FFFFFF" ? C.ink : "#FFFFFF"};font:700 22px ${TK_FONT};"></a>
   </td></tr>
-  <tr><td class="tk-card" bgcolor="${C.surface}" style="background-color:${C.surface};border:1px solid ${C.line};border-top:3px solid ${B.accent};border-radius:4px;">
-    ${body}
-  </td></tr>
-  <tr><td align="center" class="tk-pad" style="padding:32px 24px 0;font:12px/20px ${TK_SANS};color:${C.muted};letter-spacing:0.2px;">
-    <a href="${tkLink("/", "footer")}" target="_blank" style="color:${C.head};text-decoration:none;font:600 15px/22px ${TK_SERIF};" class="tk-serif">${tkEsc(B.name)}</a><br>
-    <span style="font:11px/20px ${TK_SANS};letter-spacing:2px;text-transform:uppercase;color:${C.faint};">${tkEsc(B.tagline)}</span>
-  </td></tr>
-  <tr><td align="center" class="tk-pad" style="padding:14px 24px 0;font:12px/20px ${TK_SANS};color:${C.muted};">
-    <a href="${tkWa(T.waText)}" target="_blank" style="color:${C.muted};text-decoration:none;">WhatsApp ${tkEsc(B.waLabel)}</a>
-    &nbsp;&middot;&nbsp; <a href="mailto:${B.email}" style="color:${C.muted};text-decoration:none;">${B.email}</a>
+  ${body}
+</table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;font-family:${TK_FONT};">
+  <tr><td align="center" style="padding:20px 16px 4px;font-size:12px;line-height:20px;color:${C.muted};">
+    <a href="${tkLink("/", "footer")}" target="_blank" style="color:${C.muted};text-decoration:none;">${B.domain}</a>
     &nbsp;&middot;&nbsp; <a href="${tkLink(B.plansUrl, "footer")}" target="_blank" style="color:${C.muted};text-decoration:none;">${T.plansLink}</a>
+    &nbsp;&middot;&nbsp; <a href="${tkWa()}" target="_blank" style="color:${C.muted};text-decoration:none;">WhatsApp</a>
+    &nbsp;&middot;&nbsp; <a href="mailto:${B.email}" style="color:${C.muted};text-decoration:none;">${B.email}</a><br>
+    ${tkT("footerWhy")}
   </td></tr>
-  <tr><td align="center" class="tk-pad" style="padding:14px 24px 0;font:11px/17px ${TK_SANS};color:${C.faint};">${tkFmt(T.footerWhy, { domain: B.domain })}</td></tr>
 </table>
 <!--[if mso]></td></tr></table><![endif]-->
 </td></tr>
@@ -557,275 +603,156 @@ function tkShell(preheader, body) {
 </html>`;
 }
 
-function tkEyebrow(text) {
-  const B = EMAIL_BRAND;
-  return `<div style="font:700 11px/16px ${TK_SANS};letter-spacing:3px;text-transform:uppercase;color:${B.accentText};">${text}</div>`;
+function tkRow(inner, pad = "0 40px 28px") {
+  return `<tr><td class="tk-pad" style="padding:${pad};">${inner}</td></tr>`;
 }
 
-function tkRule(width = 44) {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td width="${width}" height="2" bgcolor="${EMAIL_BRAND.accent}" style="width:${width}px;height:2px;background-color:${EMAIL_BRAND.accent};font-size:0;line-height:0;">&nbsp;</td></tr></table>`;
+function tkP(html, style = "") {
+  return `<p style="margin:0 0 14px;font-size:16px;line-height:25px;color:${EMAIL_BRAND.c.body};${style}">${html}</p>`;
 }
 
-function tkHero(eyebrow, title, lead, name) {
+function tkH2(text) {
+  return `<div style="margin:0 0 12px;font-size:17px;line-height:24px;font-weight:700;color:${EMAIL_BRAND.c.ink};">${text}</div>`;
+}
+
+function tkGreeting(name, text) {
   const C = EMAIL_BRAND.c;
-  return `
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td class="tk-pad" style="padding:44px 48px 0;">
-        ${tkEyebrow(eyebrow)}
-        <h1 class="tk-h1 tk-serif" style="margin:18px 0 22px;font:600 42px/48px ${TK_SERIF};letter-spacing:-0.5px;color:${C.head};">${title}</h1>
-        ${tkRule()}
-        <p style="margin:24px 0 0;font:15px/26px ${TK_SANS};color:${C.head};">${tkHi(name)}</p>
-        <p style="margin:8px 0 0;font:15px/26px ${TK_SANS};color:${C.text};">${lead}</p>
+  return tkRow(tkP(tkHi(name), `color:${C.ink};font-weight:600;`) + tkP(text, "margin:0;"), "32px 40px 24px");
+}
+
+function tkLabel(text, top) {
+  const C = EMAIL_BRAND.c;
+  return `<div style="margin:${top ? "16px 0 8px;padding-top:14px;border-top:1px solid " + C.line : "14px 0 2px"};font-size:12px;line-height:16px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${C.accent};">${text}</div>`;
+}
+
+// The login details: the one thing the customer needs from these emails.
+function tkLogins(username, password, m3uUrl, again) {
+  const C = EMAIL_BRAND.c, T = EMAIL_TEXT;
+  const server = tkServer(m3uUrl);
+  const field = (k, v, first) => `
+        <tr>
+          <td class="tk-lbl" width="120" valign="top" style="padding:12px 0;${first ? "" : `border-top:1px solid ${C.line};`}font-size:14px;line-height:22px;color:${C.muted};">${k}</td>
+          <td class="tk-val" style="padding:12px 0;${first ? "" : `border-top:1px solid ${C.line};`}font-family:${TK_MONO};font-size:16px;line-height:22px;font-weight:700;color:${C.ink};word-break:break-all;">${v}</td>
+        </tr>`;
+  return tkRow(`
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.box}" style="background-color:${C.box};border:1px solid ${C.line};border-top:3px solid ${C.btn};border-radius:8px;border-collapse:separate;">
+      <tr><td class="tk-box" style="padding:22px 26px 6px;">
+        <div style="font-size:18px;line-height:24px;font-weight:700;color:${C.ink};">${again ? T.loginAgain : T.loginTitle}</div>
+        ${tkLabel(T.xtream)}
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          ${field(T.server, `<a href="${tkEsc(server)}" style="color:${C.ink};text-decoration:none;">${tkEsc(server)}</a>`, true)}
+          ${field(T.username, tkEsc(username))}
+          ${field(T.password, tkEsc(password))}
+        </table>
+        ${tkLabel(T.m3u, true)}
+        <div style="margin:0 0 18px;padding:12px 14px;background-color:${C.card};border:1px solid ${C.line};border-radius:6px;font-family:${TK_MONO};font-size:14px;line-height:21px;color:${C.ink};word-break:break-all;"><a href="${tkEsc(m3uUrl)}" style="color:${C.ink};text-decoration:none;">${tkEsc(m3uUrl)}</a></div>
       </td></tr>
-    </table>`;
+    </table>`);
 }
 
-function tkSection(inner, pad = "32px 48px 0") {
-  return `
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td class="tk-pad" style="padding:${pad};">${inner}</td></tr>
-    </table>`;
-}
-
-function tkHr() {
-  return tkSection(`<div style="height:1px;line-height:1px;font-size:0;background-color:${EMAIL_BRAND.c.line};">&nbsp;</div>`, "40px 48px 0");
-}
-
-function tkH2(text, sub) {
+function tkSteps() {
   const C = EMAIL_BRAND.c;
-  return `<h2 class="tk-serif" style="margin:0 0 ${sub ? 6 : 20}px;font:600 26px/32px ${TK_SERIF};letter-spacing:-0.2px;color:${C.head};">${text}</h2>`
-    + (sub ? `<p style="margin:0 0 22px;font:14px/22px ${TK_SANS};color:${C.muted};">${sub}</p>` : "");
+  const rows = EMAIL_TEXT.steps.map(([title, text], i) => `
+      <tr>
+        <td width="36" valign="top" style="padding:0 0 14px;"><div style="width:24px;height:24px;line-height:24px;border-radius:12px;background-color:${C.step};color:#FFFFFF;font-size:13px;font-weight:700;text-align:center;">${i + 1}</div></td>
+        <td valign="top" style="padding:2px 0 14px;font-size:15px;line-height:23px;color:${C.body};"><strong style="color:${C.ink};">${title}.</strong> ${text}</td>
+      </tr>`).join("");
+  return tkRow(tkH2(EMAIL_TEXT.howTitle) + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>`, "4px 40px 18px");
 }
 
-function tkButton(href, label, bg, color, border) {
+function tkHelp(question, sign) {
+  const B = EMAIL_BRAND, C = B.c;
+  const wa = `<a href="${tkWa()}" target="_blank" style="color:${C.accent};font-weight:700;text-decoration:none;">WhatsApp (${B.waLabel.replace(/ /g, "&nbsp;").replace(/-/g, "&#8209;")})</a>`;
+  return tkRow(`
+    <div style="border-top:1px solid ${C.line};padding-top:24px;">
+      ${tkP(`${question} ${tkT("helpLine", { wa })}`)}
+      ${tkP(`${sign}<br><strong style="color:${C.ink};">${tkT("team")}</strong>`, "margin:0;")}
+    </div>`, "0 40px 36px");
+}
+
+function tkButton(href, label) {
+  const C = EMAIL_BRAND.c;
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td align="center" bgcolor="${bg}" style="background-color:${bg};border-radius:3px;${border ? `border:1px solid ${border};` : ""}">
-        <a href="${href}" target="_blank" style="display:block;padding:15px 30px;font:700 13px/18px ${TK_SANS};letter-spacing:1.6px;text-transform:uppercase;color:${color};text-decoration:none;border-radius:3px;">${label}</a>
+      <td align="center" bgcolor="${C.btn}" style="background-color:${C.btn};border-radius:6px;">
+        <a href="${href}" target="_blank" style="display:inline-block;padding:14px 28px;font-family:${TK_FONT};font-size:16px;line-height:20px;font-weight:700;color:${C.onBtn};text-decoration:none;border-radius:6px;">${label}</a>
       </td>
     </tr></table>`;
 }
 
-function tkField(label, value, last) {
+function tkInvite(title, text, campaign) {
   const C = EMAIL_BRAND.c;
-  return `
-      <tr><td style="padding:16px 24px;${last ? "" : `border-bottom:1px solid ${C.line};`}">
-        <div style="font:700 10px/14px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${C.muted};">${label}</div>
-        <div class="tk-val" style="margin-top:6px;font:500 18px/26px ${TK_MONO};color:${C.head};word-break:break-all;">${tkEsc(value)}</div>
-      </td></tr>`;
+  return tkRow(`
+    <div class="tk-h1" style="margin:0 0 10px;font-size:24px;line-height:31px;font-weight:800;color:${C.ink};">${title}</div>
+    ${tkP(text)}
+    <div style="padding-top:6px;">${tkButton(tkLink(EMAIL_BRAND.plansUrl, campaign), EMAIL_TEXT.subscribe)}</div>`, "0 40px 32px");
 }
 
-// The login, set like a ticket: the one thing they come back to for 24 hours.
-function tkPass(username, password, m3uUrl, compact) {
+function tkTerm(m) {
+  const T = EMAIL_TEXT;
+  return m === 1 ? T.m1 : m === 12 ? T.year : tkFmt(T.mN, { n: m });
+}
+
+// Every plan for 1 to 5 devices; each tile links straight to that plan's page.
+function tkPlans(campaign) {
   const B = EMAIL_BRAND, C = B.c, T = EMAIL_TEXT;
-  return `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.raised}" style="background-color:${C.raised};border:1px solid ${C.line};border-radius:4px;border-collapse:separate;">
-        <tr><td style="padding:18px 24px 16px;border-bottom:1px solid ${B.accent};">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-            <td class="tk-serif" style="font:italic 500 19px/24px ${TK_SERIF};color:${C.head};">${compact ? T.credsAgain : T.passLabel}</td>
-            <td align="right" class="tk-hide-sm" style="font:700 10px/24px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${B.accentText};white-space:nowrap;">${compact ? "" : T.admit}</td>
-          </tr></table>
-        </td></tr>
-        <tr><td style="padding:16px 24px 0;font:700 10px/14px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${B.accentText};">${T.xtream}</td></tr>
-        ${tkField(T.server, tkServer(m3uUrl))}
-        ${tkField(T.username, username)}
-        ${tkField(T.password, password, true)}
-        <tr><td style="padding:0 24px;"><div style="border-top:1px dashed ${C.line};height:0;line-height:0;font-size:0;">&nbsp;</div></td></tr>
-        <tr><td style="padding:16px 24px 22px;">
-          <div style="font:700 10px/14px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${C.muted};">${T.m3u}</div>
-          <div style="margin:4px 0 10px;font:12px/18px ${TK_SANS};color:${C.faint};">${T.m3uHint}</div>
-          <div style="padding:12px 14px;border-radius:3px;background-color:${C.page};border:1px solid ${C.line};font:12px/19px ${TK_MONO};color:${C.text};word-break:break-all;">${tkEsc(m3uUrl)}</div>
-        </td></tr>
-      </table>`;
-}
-
-function tkSteps() {
-  const B = EMAIL_BRAND, C = B.c;
-  return EMAIL_TEXT.steps.map(([title, text], i) => `
-        <tr>
-          <td valign="top" width="56" class="tk-serif" style="padding:0 0 22px;font:italic 500 30px/30px ${TK_SERIF};color:${B.accentText};">0${i + 1}</td>
-          <td valign="top" style="padding:2px 0 22px;">
-            <div style="font:700 15px/22px ${TK_SANS};color:${C.head};">${title}</div>
-            <div style="margin-top:4px;font:14px/23px ${TK_SANS};color:${C.text};">${text}</div>
-          </td>
-        </tr>`).join("");
-}
-
-function tkTiles(items) {
-  const B = EMAIL_BRAND, C = B.c;
-  const w = Math.floor(100 / items.length);
-  return `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${items.map(([, text], i) => `
-        <td class="tk-col tk-gap" width="${w}%" valign="top" style="padding:0 ${i < items.length - 1 ? 12 : 0}px 0 ${i ? 12 : 0}px;">
-          <div style="border-top:2px solid ${B.accent};padding-top:14px;">
-            <div style="font:700 10px/14px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${C.muted};">${EMAIL_TEXT.no} ${i + 1}</div>
-            <div class="tk-serif" style="margin-top:8px;font:500 18px/25px ${TK_SERIF};color:${C.head};">${text}</div>
-          </div>
-        </td>`).join("")}
-      </tr></table>`;
-}
-
-function tkHelp(title) {
-  const C = EMAIL_BRAND.c, T = EMAIL_TEXT;
-  return tkSection(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td valign="middle" class="tk-col tk-gap" style="padding-right:16px;">
-          <div class="tk-serif" style="font:italic 500 19px/26px ${TK_SERIF};color:${C.head};">${title}</div>
-          <div style="margin-top:4px;font:14px/22px ${TK_SANS};color:${C.muted};">${T.helpLine}</div>
-        </td>
-        <td valign="middle" align="right" class="tk-col tk-left" style="white-space:nowrap;">${tkButton(tkWa(T.waText), T.helpBtn, "#25D366", "#062A12")}</td>
-      </tr></table>`, "36px 48px 0");
+  const groups = B.grid.map(g => {
+    const n = g.plans.length;
+    const four = n === 4;
+    const cells = g.plans.map((p, i) => `<td class="${four ? `tk-cell ${i % 2 ? "tk-cr" : "tk-cl"}` : ""}" width="${Math.floor(100 / n)}%" valign="top" style="padding:0 ${i < n - 1 ? 8 : 0}px 0 0;"><a href="${tkLink(p.url, campaign)}" target="_blank" style="display:block;padding:12px 4px;border:1px solid ${C.line};border-radius:8px;background-color:${C.card};text-align:center;text-decoration:none;">
+          <span style="display:block;font-size:13px;line-height:18px;color:${C.body};">${tkTerm(p.months)}</span>
+          <span style="display:block;margin-top:4px;font-size:22px;line-height:28px;font-weight:700;color:${C.ink};white-space:nowrap;">${tkMoney(p.price)}</span>
+          <span style="display:block;margin-top:6px;font-size:12px;line-height:16px;font-weight:700;color:${C.accent};">${T.buy}&nbsp;&rarr;</span>
+        </a></td>`).join("");
+    const d = g.devices;
+    return `
+      <div style="margin:0 0 10px;font-size:14px;line-height:20px;font-weight:700;color:${C.ink};">${d === 1 ? T.device1 : tkFmt(T.deviceN, { n: d })}<span style="font-weight:400;color:${C.muted};">&nbsp;&nbsp;&middot;&nbsp;&nbsp;${d === 1 ? T.screens1 : tkFmt(T.screensN, { n: d })}</span></div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;"><tr>${cells}</tr></table>`;
+  }).join("");
+  return tkRow(tkH2(T.plansTitle) + tkP(T.plansSub, "margin:-6px 0 18px;font-size:14px;line-height:21px;") + groups, "0 40px 12px");
 }
 
 function tkReplyYes() {
-  const B = EMAIL_BRAND, C = B.c, T = EMAIL_TEXT;
+  const B = EMAIL_BRAND, C = B.c;
   if (!B.replyYes) return "";
-  return tkSection(`
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td width="2" bgcolor="${B.accent}" style="width:2px;background-color:${B.accent};font-size:0;line-height:0;">&nbsp;</td>
-        <td style="padding:4px 0 4px 20px;">
-          <div class="tk-serif" style="font:italic 500 20px/27px ${TK_SERIF};color:${C.head};">${T.replyTitle}</div>
-          <div style="margin-top:6px;font:15px/25px ${TK_SANS};color:${C.text};">${T.replyBody}</div>
-        </td>
-      </tr></table>`);
+  return tkRow(`<div style="padding:16px 20px;background-color:${C.box};border-radius:8px;font-size:15px;line-height:23px;color:${C.body};">${EMAIL_TEXT.replyYes.replace("<strong>", `<strong style="color:${C.ink};">`)}</div>`);
 }
 
-function tkSign() {
-  const C = EMAIL_BRAND.c, T = EMAIL_TEXT;
-  return tkSection(`
-      <p class="tk-serif" style="margin:0;font:italic 500 19px/27px ${TK_SERIF};color:${C.head};">${T.teamSign}</p>
-      <p style="margin:6px 0 0;font:700 11px/16px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${C.muted};">${tkFmt(T.team, { brand: tkEsc(EMAIL_BRAND.name) })}</p>`, "40px 48px 46px");
-}
-
-function tkMonths(m) {
-  return m === 1 ? EMAIL_TEXT.m1 : tkFmt(EMAIL_TEXT.mN, { n: m });
-}
-
-function tkBadge(p) {
-  const B = EMAIL_BRAND;
-  if (p.badge === false) return "";
-  const pick = (own, dflt) => (own === false ? "" : own || dflt);
-  return p.badge || (p.months === 12 ? pick(B.badgeBest, EMAIL_TEXT.badgeBest) : p.months === 6 ? pick(B.badgePopular, EMAIL_TEXT.badgePopular) : "");
-}
-
-function tkPerMonth(p, tpl) {
-  return tkFmt(tpl, { price: tkMoney(Math.round(p.price / p.months * 100) / 100) });
-}
-
-// Every plan is its own link to that plan's page: the best-value plan set large,
-// the others as a ruled list that fits any screen without media queries.
-function tkPlans(campaign) {
-  const B = EMAIL_BRAND, C = B.c, T = EMAIL_TEXT;
-  const plans = B.plans.slice().sort((a, b) => a.months - b.months);
-  const featured = plans.find(p => p.months === 12) || plans[plans.length - 1];
-  const rest = plans.filter(p => p !== featured);
-  const fUrl = tkLink(featured.url, campaign);
-  const fBadge = tkBadge(featured);
-
-  const hero = `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.raised}" style="background-color:${C.raised};border:1px solid ${B.accent};border-radius:4px;border-collapse:separate;"><tr>
-        <td style="padding:0;">
-          <a href="${fUrl}" target="_blank" style="display:block;padding:30px 30px 32px;text-decoration:none;">
-            ${fBadge ? `<span style="display:block;font:700 10px/14px ${TK_SANS};letter-spacing:3px;text-transform:uppercase;color:${B.accentText};">${fBadge}</span>` : ""}
-            <span class="tk-serif" style="display:block;margin-top:10px;font:600 24px/30px ${TK_SERIF};color:${C.head};">${tkMonths(featured.months)} <span style="font:400 14px/30px ${TK_SANS};color:${C.muted};">&nbsp;&middot;&nbsp; ${B.deviceLabel || T.device}</span></span>
-            <span style="display:block;margin-top:14px;">
-              <span class="tk-price tk-serif" style="font:500 56px/58px ${TK_SERIF};letter-spacing:-1px;color:${C.head};">${tkMoney(featured.price)}</span>
-              ${featured.was ? `<span style="font:16px/20px ${TK_SANS};color:${C.faint};text-decoration:line-through;">&nbsp;${tkMoney(featured.was)}</span>` : ""}
-            </span>
-            <span style="display:block;margin-top:6px;font:14px/21px ${TK_SANS};color:${C.muted};">${featured.months > 1 ? tkPerMonth(featured, T.perMonth) : "&nbsp;"}</span>
-            <span style="display:inline-block;margin-top:24px;padding:15px 28px;border-radius:3px;background-color:${B.accent};font:700 13px/18px ${TK_SANS};letter-spacing:1.6px;text-transform:uppercase;color:${B.onAccent};">${T.chooseFeatured}</span>
-          </a>
-        </td>
-      </tr></table>`;
-
-  const rows = rest.map((p, i) => {
-    const url = tkLink(p.url, campaign);
-    const badge = tkBadge(p);
-    const per = p.months > 1 ? tkPerMonth(p, T.perMonthShort) : (B.deviceLabel || T.device);
-    return `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid ${C.line};${i ? "" : "margin-top:10px;"}"><tr>
-        <td valign="middle" style="padding:0;">
-          <a href="${url}" target="_blank" style="display:block;padding:20px 8px 20px 2px;text-decoration:none;">
-            <span class="tk-serif" style="display:block;font:600 20px/26px ${TK_SERIF};color:${C.head};">${tkMonths(p.months)}</span>
-            <span style="display:block;margin-top:3px;font:13px/18px ${TK_SANS};color:${C.muted};">${per}${badge ? ` &nbsp;<span style="font:700 10px/18px ${TK_SANS};letter-spacing:2px;text-transform:uppercase;color:${B.accentText};white-space:nowrap;">${badge}</span>` : ""}</span>
-          </a>
-        </td>
-        <td valign="middle" align="right" style="padding:0;white-space:nowrap;">
-          <a href="${url}" target="_blank" style="display:block;padding:20px 2px 20px 8px;text-decoration:none;white-space:nowrap;">
-            ${p.was ? `<span style="font:13px/18px ${TK_SANS};color:${C.faint};text-decoration:line-through;">${tkMoney(p.was)}</span>&nbsp;` : ""}<span class="tk-serif" style="font:500 26px/30px ${TK_SERIF};color:${C.head};">${tkMoney(p.price)}</span>
-            <span style="display:block;margin-top:4px;font:700 10px/14px ${TK_SANS};letter-spacing:2px;text-transform:uppercase;color:${B.accentText};">${T.choose}&nbsp;&rarr;</span>
-          </a>
-        </td>
-      </tr></table>`;
-  }).join("");
-
-  return `${hero}${rows}
-      <p style="margin:22px 0 0;font:700 11px/16px ${TK_SANS};letter-spacing:2px;text-transform:uppercase;"><a href="${tkLink(B.plansUrl, campaign)}" target="_blank" style="color:${C.muted};text-decoration:none;">${T.allPlans}</a></p>`;
-}
-
-function tkTrust() {
-  const C = EMAIL_BRAND.c;
-  return `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${C.line};border-bottom:1px solid ${C.line};"><tr>
-        ${EMAIL_TEXT.trust.map((t, i) => `<td class="tk-col tk-trust" align="center" width="33%" style="padding:16px 6px;${i ? `border-left:1px solid ${C.line};` : ""}font:700 10px/16px ${TK_SANS};letter-spacing:1.8px;text-transform:uppercase;color:${C.soft};">${t}</td>`).join("")}
-      </tr></table>`;
-}
-
-// 20 of 24 hours used, drawn as a hairline: easier to feel than a sentence.
-function tkProgress() {
-  const B = EMAIL_BRAND, C = B.c, T = EMAIL_TEXT;
-  return `
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td width="83%" height="3" bgcolor="${B.accent}" style="height:3px;background-color:${B.accent};font-size:0;line-height:0;">&nbsp;</td>
-        <td width="17%" height="3" bgcolor="${C.line}" style="height:3px;background-color:${C.line};font-size:0;line-height:0;">&nbsp;</td>
-      </tr></table>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td style="padding-top:10px;font:700 10px/14px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${C.muted};">${T.r_used}</td>
-        <td align="right" style="padding-top:10px;font:700 10px/14px ${TK_SANS};letter-spacing:2.4px;text-transform:uppercase;color:${B.accentText};">${T.r_left}</td>
-      </tr></table>`;
+function tkFrom() {
+  const p = Math.min(...EMAIL_BRAND.grid[0].plans.map(x => x.price));
+  return tkT("f_from", { price: tkMoney(p) });
 }
 
 // ── the three customer emails ─────────────────────────────────────────────────
 
 function welcomeEmail(name, username, password, m3uUrl) {
-  const T = EMAIL_TEXT, C = EMAIL_BRAND.c;
+  const T = EMAIL_TEXT;
   return tkShell(T.w_pre, `
-    ${tkHero(T.w_eyebrow, T.w_title, T.w_lead, name)}
-    ${tkSection(tkPass(username, password, m3uUrl), "36px 48px 0")}
-    ${tkSection(`<p style="margin:0;font:13px/21px ${TK_SANS};color:${C.muted};">${T.w_note}</p>`, "16px 48px 0")}
-    ${tkHr()}
-    ${tkSection(`${tkH2(T.stepsTitle)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${tkSteps()}</table>`, "40px 48px 0")}
-    ${tkSection(`${tkH2(T.tryTitle)}${tkTiles(EMAIL_BRAND.highlights)}`, "18px 48px 0")}
-    ${tkHr()}
-    ${tkHelp(T.helpTitle)}
-    ${tkSign()}`);
+    ${tkGreeting(name, tkT("w_intro"))}
+    ${tkLogins(username, password, m3uUrl)}
+    ${tkSteps()}
+    ${tkHelp(T.helpSetup, T.signWelcome)}`);
 }
 
 function reminderEmail(name, username, password, m3uUrl) {
   const T = EMAIL_TEXT;
   return tkShell(T.r_pre, `
-    ${tkHero(T.r_eyebrow, T.r_title, T.r_lead, name)}
-    ${tkSection(tkProgress(), "30px 48px 0")}
+    ${tkGreeting(name, tkT("r_hello"))}
+    ${tkInvite(T.r_title, tkT("r_text"), "trial_reminder")}
+    ${tkPlans("trial_reminder")}
     ${tkReplyYes()}
-    ${tkHr()}
-    ${tkSection(`${tkH2(T.plansTitle, T.plansSub)}${tkPlans("trial_reminder")}`, "40px 48px 0")}
-    ${tkSection(tkPass(username, password, m3uUrl, true), "44px 48px 0")}
-    ${tkHelp(T.helpTitle)}
-    ${tkSign()}`);
+    ${tkLogins(username, password, m3uUrl, true)}
+    ${tkHelp(T.helpPlans, T.signFollow)}`);
 }
 
 function followupEmail(name) {
-  const T = EMAIL_TEXT, C = EMAIL_BRAND.c;
+  const T = EMAIL_TEXT;
   return tkShell(T.f_pre, `
-    ${tkHero(T.f_eyebrow, T.f_title, T.f_lead, name)}
+    ${tkGreeting(name, tkT("f_hello"))}
+    ${tkInvite(T.f_title, `${tkT("f_text")} ${tkFrom()}`, "trial_followup")}
+    ${tkPlans("trial_followup")}
     ${tkReplyYes()}
-    ${tkHr()}
-    ${tkSection(`${tkH2(T.plansTitle, T.plansSub)}${tkPlans("trial_followup")}`, "40px 48px 0")}
-    ${tkSection(tkTrust(), "36px 48px 0")}
-    ${tkHelp(T.f_helpTitle)}
-    ${tkSection(`<p style="margin:0;font:15px/25px ${TK_SANS};color:${C.text};"><span class="tk-serif" style="font:italic 500 17px/25px ${TK_SERIF};color:${C.head};">P.S.</span>&nbsp; ${T.ps}</p>`, "32px 48px 0")}
-    ${tkSign()}`);
+    ${tkHelp(T.helpChoose, T.signFollow)}`);
 }
 
 // ── end trial emails ──
