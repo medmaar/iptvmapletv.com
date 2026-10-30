@@ -250,17 +250,18 @@ const SITE = {
   "onBtn": "#FFFFFF",
   "accent": "#CC243B",
   "wa": "17828026280",
-  "waLabel": "+1 782-802-6280",
-  "rate": 1
+  "waLabel": "+1 782-802-6280"
 };
 
 // Invoice email for paid plans (1, 3, 6, 12 months). Free trials never come here.
 // The site's order form POSTs { name, email, plan } to /invoice right after its order email is sent.
 // Static sites load /invoice.js instead, which does that POST after a successful EmailJS order send.
-// Needs SITE (brand, contacts, lang, rate) defined above it and env.RESEND_KEY.
+// Needs SITE (brand, contacts, lang, cur, map, manual) defined above it and env.RESEND_KEY.
 // The Hotmart link is picked by the order's amount only: USD and EUR amounts use the same links,
-// other currencies are divided by SITE.rate first (NOK: 9). Unknown amount → the client gets
-// nothing and the site inbox gets a notice instead.
+// SITE.map turns another currency's price into the USD price first (GBP on mojo4k.uk).
+// The client's email shows the price in the site's own currency (SITE.cur).
+// Unknown amount → the client gets nothing and the site inbox gets a notice instead.
+// SITE.manual → the client gets nothing and the site inbox gets the order to invoice by hand.
 
 const LINKS = {
   9: "R108002491V", 18: "X108089791S", 27: "Q108015747U", 36: "M108015793S", 45: "D108015830G",
@@ -287,7 +288,6 @@ const TEXT = {
     months: { 1: "one month", 3: "three months", 6: "six months", 12: "one year" },
     plan: { 1: "1 Month", 3: "3 Months", 6: "6 Months", 12: "12 Months" },
     devices: (n) => `${n} Device${n > 1 ? "s" : ""}`, withDevices: (what, n) => `${what} (${n} devices)`,
-    money: (n) => `$${n} USD`,
   },
   fr: {
     subject: "Votre facture de paiement sécurisée",
@@ -304,7 +304,6 @@ const TEXT = {
     months: { 1: "un mois", 3: "trois mois", 6: "six mois", 12: "un an" },
     plan: { 1: "1 mois", 3: "3 mois", 6: "6 mois", 12: "12 mois" },
     devices: (n) => `${n} appareil${n > 1 ? "s" : ""}`, withDevices: (what, n) => `${what} (${n} appareils)`,
-    money: (n) => `${n}&nbsp;$&nbsp;US`,
   },
   de: {
     subject: "Ihre sichere Zahlungsrechnung",
@@ -321,7 +320,6 @@ const TEXT = {
     months: { 1: "einen Monat", 3: "drei Monate", 6: "sechs Monate", 12: "ein Jahr" },
     plan: { 1: "1 Monat", 3: "3 Monate", 6: "6 Monate", 12: "12 Monate" },
     devices: (n) => `${n} ${n > 1 ? "Geräte" : "Gerät"}`, withDevices: (what, n) => `${what} (${n} Geräte)`,
-    money: (n) => `${n}&nbsp;USD`,
   },
   no: {
     subject: "Din sikre betalingsfaktura",
@@ -338,7 +336,6 @@ const TEXT = {
     months: { 1: "én måned", 3: "tre måneder", 6: "seks måneder", 12: "ett år" },
     plan: { 1: "1 måned", 3: "3 måneder", 6: "6 måneder", 12: "12 måneder" },
     devices: (n) => `${n} ${n > 1 ? "tilkoblinger" : "tilkobling"}`, withDevices: (what, n) => `${what} (${n} tilkoblinger)`,
-    money: (n) => `${n}&nbsp;USD`,
   },
 };
 
@@ -348,25 +345,40 @@ const C = { page: "#F2F3F5", card: "#FFFFFF", ink: "#14171F", body: "#4B5161", m
 const NO_NAME = ["anonymous", "anonym", "(not provided)", "not provided", "ikke oppgitt", "non renseigné", "nicht angegeben", "-", "—"];
 
 const T = () => TEXT[SITE.lang] || TEXT.en;
+
+// The price as the client saw it on the site: "$49 USD", "49 €", "£39", "1215 kr".
+function money(n, cur, html = true) {
+  const sp = html ? "&nbsp;" : " ", lang = SITE.lang;
+  const v = Number.isInteger(n) ? String(n) : Number(n).toFixed(2).replace(".", lang === "en" ? "." : ",");
+  if (cur === "EUR") return lang === "en" ? `€${v}` : `${v}${sp}€`;
+  if (cur === "GBP") return `£${v}`;
+  if (cur === "NOK") return `${v}${sp}kr`;
+  if (!html) return `$${v}`;
+  return lang === "en" ? `$${v} USD` : lang === "fr" ? `${v}${sp}$${sp}US` : `${v}${sp}USD`;
+}
 const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (s, vars) => String(s).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
 
 // Reads the order out of whatever plan text the site sends, in any of its languages:
 // "12 Months - 1 Device — $49", "6 Monate / 1 Verbindung / 39€", "1 Jahr IPTV Abo für 2 Geräte – 89 € (2 Geräte, 1 Jahr)",
-// "2 appareils — 12 mois — 69€", "12 måneder – 3 tilkoblinger – kr 1215" → { amount (USD), months, devices }
+// "2 appareils — 12 mois — 69€", "12 Months · 2 Devices — £62", "12 måneder – 3 tilkoblinger – kr 1215"
+// → { amount (site's own price), cur (site's currency), usd (invoice price), months, devices }
 function parsePlan(plan) {
   const s = String(plan || "").replace(/\s+/g, " ");
   const num = (v) => Number(String(v).replace(/[.,](?=\d{3}\b)/g, "").replace(",", "."));
-  let amount = null;
-  const usd = s.match(/[$€]\s*(\d[\d.,]*)|(\d[\d.,]*)\s*(?:€|\$|USD|EUR)/i);
+  const CUR = { "$": "USD", "€": "EUR", "£": "GBP", usd: "USD", eur: "EUR", gbp: "GBP" };
+  let amount = null, cur = null;
+  const sym = s.match(/([$€£])\s*(\d[\d.,]*)|(\d[\d.,]*)\s*(€|\$|£|USD|EUR|GBP)/i);
   const nok = s.match(/(?:\bkr\.?|\bNOK)\s*(\d[\d.,]*)|(\d[\d.,]*)\s*(?:kr\b|NOK\b)/i);
-  if (usd) amount = num(usd[1] || usd[2]);
-  else if (nok) amount = num(nok[1] || nok[2]) / (SITE.rate || 1);
+  if (sym) { amount = num(sym[2] || sym[3]); cur = CUR[(sym[1] || sym[4]).toLowerCase()]; }
+  else if (nok) { amount = num(nok[1] || nok[2]); cur = "NOK"; }
+  cur = SITE.cur || cur || "USD";
+  const usd = amount == null ? null : SITE.map ? SITE.map[amount] ?? null : cur === "NOK" ? null : amount;
   const year = /(?:^|[^\d])(?:1|one|un|ein|ett)\s*(?:years?|an|ans|année|jahr|år)(?![a-zà-ÿ])/i.test(s);
   const m = s.match(/(\d+)\s*(?:months?|mois|monate?|måned(?:er)?|maaned(?:er)?)(?![a-zà-ÿ])/i) || s.match(/(?:^|[^\w])(\d+)m(?![a-zà-ÿ\d])/i);
   const months = m ? Number(m[1]) : year ? 12 : null;
   const d = s.match(/(\d+)\s*(?:devices?|connections?|connexions?|appareils?|écrans?|ger(?:ä|a)te?|verbindung(?:en)?|tilkobling(?:er)?|enhet(?:er)?)(?![a-zà-ÿ])/i);
-  return { amount, months, devices: d ? Number(d[1]) : 1 };
+  return { amount, cur, usd, months, devices: d ? Number(d[1]) : 1 };
 }
 
 function describe({ months, devices }) {
@@ -379,8 +391,8 @@ function summary({ months, devices }) {
   return `${t.plan[months] || ""} · ${t.devices(devices)}`.replace(/^ · /, "");
 }
 
-function linkFor(amount) {
-  return Number.isInteger(amount) && LINKS[amount] ? `https://pay.hotmart.com/${LINKS[amount]}` : null;
+function linkFor(usd) {
+  return Number.isInteger(usd) && LINKS[usd] ? `https://pay.hotmart.com/${LINKS[usd]}` : null;
 }
 
 function greeting(name) {
@@ -392,7 +404,7 @@ function invoiceEmail({ name, parsed, link }) {
   const S = SITE, t = T(), what = describe(parsed);
   const vars = { brand: esc(S.name), domain: S.domain };
   const p = (html, extra = "") => `<p style="margin:0 0 16px;font-size:16px;line-height:25px;color:${C.body};${extra}">${html}</p>`;
-  const wa = `https://wa.me/${S.wa}?text=${encodeURIComponent(fmt(t.waText, { brand: S.name }))}`;
+  const wa = `${S.waUrl || `https://wa.me/${S.wa}`}?text=${encodeURIComponent(fmt(t.waText, { brand: S.name }))}`;
   return `<!DOCTYPE html>
 <html lang="${S.lang === "no" ? "nb" : S.lang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="x-apple-disable-message-reformatting"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">
@@ -422,7 +434,7 @@ function invoiceEmail({ name, parsed, link }) {
           <tr><td class="l" style="padding:0 0 10px;font-size:14px;line-height:22px;color:${C.muted};">${t.order}</td>
               <td class="v" align="right" style="padding:0 0 10px;font-size:15px;line-height:22px;font-weight:700;color:${C.ink};">${esc(summary(parsed))}</td></tr>
           <tr><td class="l" style="padding:10px 0 18px;border-top:1px solid ${C.line};font-size:14px;line-height:22px;color:${C.muted};">${t.amount}</td>
-              <td class="v" align="right" style="padding:10px 0 18px;border-top:1px solid ${C.line};font-size:20px;line-height:24px;font-weight:800;color:${C.ink};">${t.money(parsed.amount)}</td></tr>
+              <td class="v" align="right" style="padding:10px 0 18px;border-top:1px solid ${C.line};font-size:20px;line-height:24px;font-weight:800;color:${C.ink};">${money(parsed.amount, parsed.cur)}</td></tr>
         </table>
         <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
           <td align="center" bgcolor="${S.btn}" style="background-color:${S.btn};border-radius:6px;">
@@ -446,7 +458,7 @@ function invoiceEmail({ name, parsed, link }) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;font-family:${FONT};">
   <tr><td align="center" style="padding:20px 16px 4px;font-size:12px;line-height:20px;color:${C.muted};">
     <a href="${S.url}" target="_blank" style="color:${C.muted};">${S.domain}</a>
-    &nbsp;&middot;&nbsp; <a href="${wa}" target="_blank" style="color:${C.muted};">WhatsApp ${esc(S.waLabel).replace(/ /g, "&nbsp;")}</a>
+    &nbsp;&middot;&nbsp; <a href="${wa}" target="_blank" style="color:${C.muted};">WhatsApp${S.waLabel ? "&nbsp;" + esc(S.waLabel).replace(/ /g, "&nbsp;") : ""}</a>
     &nbsp;&middot;&nbsp; <a href="mailto:${S.email}" style="color:${C.muted};">${S.email}</a><br>
     ${fmt(t.why, vars)}
   </td></tr>
@@ -458,14 +470,16 @@ function invoiceEmail({ name, parsed, link }) {
 
 // Served at /invoice.js for the static sites' order pages. After an EmailJS order send succeeds
 // (emailjs.send, emailjs.sendForm or a fetch to api.emailjs.com), it posts the order to /invoice.
-// It never changes what the page does, and does nothing on a failed send.
+// It never changes what the page does, does nothing on a failed send, and posts each order once
+// (EmailJS v4's emailjs.send goes through fetch, so both hooks see the same order).
 function hookScript(base) {
   return `(function(){
-var U=${JSON.stringify(base + "/invoice")};
+var U=${JSON.stringify(base + "/invoice")},seen={};
 function post(p){try{
   var email=String(p.from_email||p.email||p.reply_to||"").trim();
   var plan=String(p.plan||"");if(p.price&&plan.indexOf(p.price)<0)plan+=" — "+p.price;
   if(!plan||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return;
+  var k=email.toLowerCase()+"|"+plan;if(seen[k]&&Date.now()-seen[k]<60000)return;seen[k]=Date.now();
   var body=JSON.stringify({name:String(p.from_name||p.full_name||p.name||""),email:email,plan:plan});
   (window.__ivFetch||fetch)(U,{method:"POST",headers:{"Content-Type":"application/json"},body:body,keepalive:true}).catch(function(){});
 }catch(e){}}
@@ -497,13 +511,36 @@ async function send(env, from, to, subject, html, replyTo) {
   if (!res.ok) throw new Error(`Resend (${res.status}): ${await res.text()}`);
 }
 
-// GET /invoice.js and POST /invoice. Returns null for any other request.
+// One invoice per address and plan every 10 minutes, so a double click never sends two.
+// Kept in the Worker's KV under "invoice:" (trial records use other keys); Cache API as a fallback.
+async function seenBefore(env, email, planText) {
+  const raw = new TextEncoder().encode(`${email.toLowerCase()}|${planText}`);
+  const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+  const kv = env.TRIALS || env.TRIAL_KV, key = `invoice:${SITE.domain}:${hash}`;
+  try {
+    if (kv) {
+      if (await kv.get(key)) return { hit: true };
+      await kv.put(key, "1", { expirationTtl: 600 });
+      return { hit: false, undo: () => kv.delete(key) };
+    }
+    const cache = caches.default, req = new Request(`https://invoice.local/${key}`);
+    if (await cache.match(req)) return { hit: true };
+    await cache.put(req, new Response("1", { headers: { "Cache-Control": "max-age=600" } }));
+    return { hit: false, undo: () => cache.delete(req) };
+  } catch (err) {
+    console.error("[invoice] dedupe", err.message);
+    return { hit: false };
+  }
+}
+
+// GET <base>/invoice.js and POST <base>/invoice ("/invoice" on the Workers, "/api/invoice" on Pages).
+// Returns null for any other request.
 async function handle(request, env) {
   const url = new URL(request.url);
-  if (url.pathname === "/invoice.js" && request.method === "GET") {
-    return new Response(hookScript(url.origin), { headers: { "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "public, max-age=300", "Access-Control-Allow-Origin": "*" } });
+  if (url.pathname.endsWith("/invoice.js") && request.method === "GET") {
+    return new Response(hookScript(url.origin + url.pathname.slice(0, -"/invoice.js".length)), { headers: { "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "public, max-age=300", "Access-Control-Allow-Origin": "*" } });
   }
-  if (url.pathname !== "/invoice") return null;
+  if (!url.pathname.endsWith("/invoice")) return null;
   const origin = request.headers.get("Origin") || "";
   const host = origin.replace(/^https?:\/\/(www\.)?/, "");
   if (request.method === "OPTIONS") return new Response(null, { headers: cors(origin) });
@@ -513,43 +550,47 @@ async function handle(request, env) {
 
   let body;
   try { body = await request.json(); } catch { return json({ error: "bad json" }, 400, origin); }
-  const name = String(body.name || "").slice(0, 100);
+  const name = String(body.name || "").trim().slice(0, 100);
   const email = String(body.email || "").trim().slice(0, 200);
   const planText = String(body.plan || "").slice(0, 300);
   // A form without the client's email falls back to the site's own address: nothing to send then.
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.toLowerCase().endsWith("@" + SITE.domain) || !planText) {
     return json({ success: true, invoice: false }, 200, origin);
   }
-
-  // One invoice per address and plan every 10 minutes, so a double click never sends two.
-  const cache = caches.default, key = new Request(`https://invoice.local/${SITE.domain}/${encodeURIComponent(email.toLowerCase())}/${encodeURIComponent(planText)}`);
-  if (await cache.match(key)) return json({ success: true, duplicate: true }, 200, origin);
-  await cache.put(key, new Response("1", { headers: { "Cache-Control": "max-age=600" } }));
-
   // No plan length in the text means it isn't a plan order (a lead or trial form): nothing to do.
   const parsed = parsePlan(planText);
   if (!parsed.months) return json({ success: true, invoice: false }, 200, origin);
-  const link = linkFor(parsed.amount);
+
+  const seen = await seenBefore(env, email, planText);
+  if (seen.hit) return json({ success: true, duplicate: true }, 200, origin);
+
+  const link = linkFor(parsed.usd);
   const S = SITE, from = `${S.name} <${S.from || S.email}>`, admin = S.admin || S.email;
-  const facts = `Name: ${esc(name)}<br>Email: ${esc(email)}<br>Plan: ${esc(planText)}`;
+  const who = `${name || "-"} / ${email}`, price = parsed.amount == null ? "?" : money(parsed.amount, parsed.cur, false);
+  const facts = `Name: ${esc(name || "-")}<br>Email: ${esc(email)}<br>Plan: ${esc(planText)}`;
   try {
+    if (S.manual) {
+      await send(env, from, admin, `invoice / ${S.domain} / manual / ${price} / ${who}`,
+        `<p>New order on ${S.domain}. This site is manual: no invoice was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}</p>`, email);
+      return json({ success: true, invoice: false }, 200, origin);
+    }
     if (!link) {
-      await send(env, from, admin, `Automation / ${S.domain} / invoice NOT sent / no link for ${parsed.amount ?? "?"} / ${name} / ${email}`,
-        `<p>No Hotmart link matches this order, so no invoice was emailed to the client. Please send it by hand.</p><p>${facts}<br>Amount read (USD): ${esc(parsed.amount)}</p>`);
+      await send(env, from, admin, `invoice NOT sent / ${S.domain} / ${price} / ${who}`,
+        `<p>No Hotmart link matches this order, so no invoice was emailed to the client. Please send it by hand.</p><p>${facts}<br>Price read: ${esc(price)}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
     await send(env, from, email, T().subject, invoiceEmail({ name, parsed, link }), S.email);
-    await send(env, from, admin, `Automation / ${S.domain} / invoice sent / $${parsed.amount} / ${name} / ${email}`,
-      `<p>Invoice emailed to the client.</p><p>${facts}<br>Link: <a href="${link}">${link}</a></p>`);
+    await send(env, from, admin, `invoice / ${S.domain} / $${parsed.usd} / ${who}`,
+      `<p>Invoice emailed to the client.</p><p>${facts}<br>Price shown to the client: ${esc(price)}<br>Link ($${parsed.usd}): <a href="${link}">${link}</a></p>`, email);
     return json({ success: true, invoice: true }, 200, origin);
   } catch (err) {
-    await cache.delete(key);
+    if (seen.undo) await seen.undo().catch(() => {});
     console.error("[invoice]", err.message);
     return json({ success: false, error: err.message }, 500, origin);
   }
 }
 
-return { handle, hookScript, invoiceEmail, parsePlan, describe, linkFor };
+return { handle, hookScript, invoiceEmail, parsePlan, describe, linkFor, money };
 })();
 
 // ── end invoice emails ──
