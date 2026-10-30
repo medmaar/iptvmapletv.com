@@ -196,6 +196,15 @@
           window.gtag && gtag("event", "generate_lead", { form_type: type, value: +form.dataset.value || 0, currency: "USD" });
           window.rdt && rdt("track", "Lead");
         } catch (_) {}
+        // Plan orders: email the client their payment invoice. Fire-and-forget, never blocks the order.
+        if (type === "order") {
+          fetch("https://iptv-trial-iptvmapletv.medmaar.workers.dev/invoice", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: fd.get("name-1") || "", email: fd.get("email-1") || "", plan: `${fd.get("plan") || ""} — $${form.dataset.value || ""}` }),
+            keepalive: true,
+          }).catch(() => {});
+        }
         if (json.data.url) { location.href = json.data.url; return; }
         form.reset();
         const card = form.closest(".order-card"), done = card && $("[data-success]", card);
