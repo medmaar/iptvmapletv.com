@@ -257,18 +257,33 @@ const SITE = {
 // The site's order form POSTs { name, email, plan } to /invoice right after its order email is sent.
 // Static sites load /invoice.js instead, which does that POST after a successful EmailJS order send.
 // Needs SITE (brand, contacts, lang, cur, map, manual) defined above it and env.RESEND_KEY.
-// The Hotmart link is picked by the order's amount only: USD and EUR amounts use the same links,
+// The payment link (full URL, LINKS below) is picked by the order's amount only: USD and EUR amounts use the same links,
 // SITE.map turns another currency's price into the USD price first (GBP on mojo4k.uk).
 // The client's email shows the price in the site's own currency (SITE.cur).
 // Unknown amount → the client gets nothing and the site inbox gets a notice instead.
 // SITE.manual → the client gets nothing and the site inbox gets the order to invoice by hand.
 
 const LINKS = {
-  9: "R108002491V", 18: "X108089791S", 27: "Q108015747U", 36: "M108015793S", 45: "D108015830G",
-  39: "U108015680P", 49: "A108089251Q", 69: "B108089818G", 89: "C108089449H", 105: "H108089842K",
-  135: "D108089540D", 140: "U108089597Q", 180: "E108089692U", 175: "J108089632D", 225: "J108089724Q",
-  120: "X108089477M", 99: "U108089323S", 75: "W108089279F",
-  29: "Q108015747U", 50: "A108089251Q",
+  9: "https://www.wordsnest.online/l/seniors?wanted=true",
+  18: "https://www.wordsnest.online/l/Attivita?wanted=true",
+  27: "https://www.wordsnest.online/l/Malvoyants?wanted=true",
+  29: "https://www.wordsnest.online/l/unaVolta?wanted=true",
+  36: "https://www.wordsnest.online/l/Viaggio?wanted=true",
+  39: "https://www.wordsnest.online/l/Nonni?wanted=true",
+  45: "https://www.wordsnest.online/l/Memoria?wanted=true",
+  49: "https://www.wordsnest.online/l/Mots?wanted=true",
+  50: "https://www.wordsnest.online/l/CapolavoriePagine?wanted=true",
+  69: "https://www.wordsnest.online/l/Giochi?wanted=true",
+  75: "https://www.wordsnest.online/l/ComeEravamo?wanted=true",
+  89: "https://www.wordsnest.online/l/Cruciverba?wanted=true",
+  99: "https://www.wordsnest.online/l/GrandTour?wanted=true",
+  105: "https://www.wordsnest.online/l/Intrecciateper?wanted=true",
+  120: "https://www.wordsnest.online/l/BellezzaItaliana?wanted=true",
+  135: "https://www.wordsnest.online/l/Ipovedenti?wanted=true",
+  140: "https://www.wordsnest.online/l/GrandeRaccolta?wanted=true",
+  175: "https://www.wordsnest.online/l/ViaggioperlItalia?wanted=true",
+  180: "https://www.wordsnest.online/l/MemoriaeTradizioni?wanted=true",
+  225: "https://www.wordsnest.online/l/GrandeCollezione?wanted=true",
 };
 
 // The message text is Mo's, word for word; the other languages are straight translations of it.
@@ -392,7 +407,7 @@ function summary({ months, devices }) {
 }
 
 function linkFor(usd) {
-  return Number.isInteger(usd) && LINKS[usd] ? `https://pay.hotmart.com/${LINKS[usd]}` : null;
+  return Number.isInteger(usd) && LINKS[usd] ? LINKS[usd] : null;
 }
 
 function greeting(name) {
@@ -576,7 +591,7 @@ async function handle(request, env) {
     }
     if (!link) {
       await send(env, from, admin, `invoice NOT sent / ${S.domain} / ${price} / ${who}`,
-        `<p>No Hotmart link matches this order, so no invoice was emailed to the client. Please send it by hand.</p><p>${facts}<br>Price read: ${esc(price)}</p>`, email);
+        `<p>No payment link matches this order, so no invoice was emailed to the client. Please send it by hand.</p><p>${facts}<br>Price read: ${esc(price)}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
     await send(env, from, email, T().subject, invoiceEmail({ name, parsed, link }), S.email);
