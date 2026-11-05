@@ -10,8 +10,8 @@
  *   one run per 10 minutes; it only sends emails that are due). The scheduled() handler is kept in case
  *   a cron trigger becomes available.
  * - GET /?debug → panel reachability + KV key count (no secrets)
- * Abuse protection: honeypot, email checks, one trial per inbox and per WhatsApp number,
- * 3 trials per IP per day, and a daily cap (TRIAL_DAILY_LIMIT, default 60).
+ * Abuse protection: honeypot, email checks and a daily cap (TRIAL_DAILY_LIMIT, default 60; past it the form
+ * falls back to the manual lead flow). Repeat requests from the same email, WhatsApp number or IP are allowed.
  *
  * Worker secrets (Cloudflare → Workers & Pages → iptv-trial-iptvmapletv → Settings → Variables and Secrets):
  *   RESEND_KEY, PANEL_API_KEY, optional DEMO_USERNAME / DEMO_PASSWORD
@@ -31,7 +31,6 @@ const WA_LABEL = "+1 782-802-6280";
 const DAY = 24 * 60 * 60;
 const TRIAL_HOURS = 24;
 const SUBJECT = "Your IPTVMaple free trial is ready — 24h access activated ✓";
-const PER_IP_PER_DAY = 3;
 const KV_TTL = 30 * DAY;
 const ALLOWED_ORIGIN = /^https:\/\/((www\.)?iptvmapletv\.com|([a-z0-9-]+\.)?iptvmapletv-com\.pages\.dev)$/;
 
@@ -43,43 +42,22 @@ const DISPOSABLE = new Set([
 
 const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i;
 
-// gmail ignores dots and +tags; everyone else ignores +tags. One trial per real inbox.
-function inboxKey(email) {
-  let [user, domain] = email.toLowerCase().split("@");
-  user = user.split("+")[0];
-  if (domain === "gmail.com" || domain === "googlemail.com") { user = user.replace(/\./g, ""); domain = "gmail.com"; }
-  return `${user}@${domain}`;
-}
-
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const timeout = (ms) => AbortSignal.timeout(ms);
 
-async function createTrial({ name, email, country, whatsapp, ip, env }) {
+async function createTrial({ name, email, country, whatsapp, env }) {
   const kv = env.TRIALS;
   email = email.trim().toLowerCase();
   if (!EMAIL_RE.test(email)) return { status: "invalid", message: "Please enter a valid email address." };
   if (DISPOSABLE.has(email.split("@")[1])) return { status: "invalid", message: "Please use your real email address — your login is sent there." };
 
-  const inbox = inboxKey(email);
-  const phone = String(whatsapp || "").replace(/\D/g, "");
   const today = new Date().toISOString().slice(0, 10);
-  const [byEmail, byInbox, byPhone, ipCount, dayCount] = await Promise.all([
-    kv.get(`trial:${email}`),
-    kv.get(`inbox:${inbox}`),
-    kv.get(`phone:${phone}`),
-    ip ? kv.get(`ip:${ip}`) : null,
-    kv.get(`day:${today}`),
-  ]);
-  if (byEmail || byInbox || byPhone) return { status: "duplicate" };
-  if (+ipCount >= PER_IP_PER_DAY) return { status: "rate_limited" };
+  const dayCount = await kv.get(`day:${today}`);
   if (+dayCount >= (+env.TRIAL_DAILY_LIMIT || 60)) return { status: "manual", reason: "daily automatic trial limit reached" };
   if (!env.RESEND_KEY) return { status: "manual", reason: "RESEND_KEY secret not set" };
 
   // Count the attempt before calling the panel so a burst of requests can't drain panel credits.
-  await Promise.all([
-    ip && kv.put(`ip:${ip}`, String(+ipCount + 1), { expirationTtl: DAY }),
-    kv.put(`day:${today}`, String(+dayCount + 1), { expirationTtl: 2 * DAY }),
-  ]);
+  await kv.put(`day:${today}`, String(+dayCount + 1), { expirationTtl: 2 * DAY });
 
   let creds;
   try {
@@ -99,12 +77,8 @@ async function createTrial({ name, email, country, whatsapp, ip, env }) {
   // Same record shape as the other sites, so iptv-kv-reader and the follow-up dashboard read it as-is.
   const trial = { name, email, country, whatsapp, site: SITE, username, password, m3uUrl, expiry: now + TRIAL_HOURS * 3600e3,
                   reminder_sent: false, followup_sent: false, welcome_email_id: null, shared_demo: !!creds.shared, created_at: now };
-  // Record the trial before emailing so a retry can never create a second line.
-  await Promise.all([
-    kv.put(`trial:${email}`, JSON.stringify(trial), { expirationTtl: KV_TTL }),
-    kv.put(`inbox:${inbox}`, email, { expirationTtl: 180 * DAY }),
-    phone && kv.put(`phone:${phone}`, email, { expirationTtl: 180 * DAY }),
-  ]);
+  // A repeat request from the same email replaces the earlier record (latest login drives the reminder emails).
+  await kv.put(`trial:${email}`, JSON.stringify(trial), { expirationTtl: KV_TTL });
   try {
     const keys = JSON.parse((await kv.get("__keys__")) || "[]");
     if (!keys.includes(email)) { keys.push(email); await kv.put("__keys__", JSON.stringify(keys), { expirationTtl: 90 * DAY }); }
@@ -171,7 +145,7 @@ async function handleFetch(request, env) {
 
   let result;
   try {
-    result = await createTrial({ name, email, country, whatsapp, ip: request.headers.get("CF-Connecting-IP"), env });
+    result = await createTrial({ name, email, country, whatsapp, env });
   } catch (err) {
     result = { status: "manual", reason: `error: ${err.message}` };
   }
@@ -181,10 +155,6 @@ async function handleFetch(request, env) {
   switch (result.status) {
     case "sent": return res({ success: true, email: result.trial.email });
     case "invalid": return res({ success: false, message: result.message }, 400);
-    case "duplicate":
-      return res({ success: false, message: "A free trial was already sent to this email or WhatsApp number. Check your inbox and spam folder, or message us on WhatsApp for help." }, 409);
-    case "rate_limited":
-      return res({ success: false, message: "Too many trial requests from your connection today. Please message us on WhatsApp and we’ll help you right away." }, 429);
     default:
       // Not automated (missing secret, panel or email failure, daily cap): the site falls back to the
       // manual lead form so the team sends the trial by hand.
@@ -526,28 +496,6 @@ async function send(env, from, to, subject, html, replyTo) {
   if (!res.ok) throw new Error(`Resend (${res.status}): ${await res.text()}`);
 }
 
-// One invoice per address and plan every 10 minutes, so a double click never sends two.
-// Kept in the Worker's KV under "invoice:" (trial records use other keys); Cache API as a fallback.
-async function seenBefore(env, email, planText) {
-  const raw = new TextEncoder().encode(`${email.toLowerCase()}|${planText}`);
-  const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
-  const kv = env.TRIALS || env.TRIAL_KV, key = `invoice:${SITE.domain}:${hash}`;
-  try {
-    if (kv) {
-      if (await kv.get(key)) return { hit: true };
-      await kv.put(key, "1", { expirationTtl: 600 });
-      return { hit: false, undo: () => kv.delete(key) };
-    }
-    const cache = caches.default, req = new Request(`https://invoice.local/${key}`);
-    if (await cache.match(req)) return { hit: true };
-    await cache.put(req, new Response("1", { headers: { "Cache-Control": "max-age=600" } }));
-    return { hit: false, undo: () => cache.delete(req) };
-  } catch (err) {
-    console.error("[invoice] dedupe", err.message);
-    return { hit: false };
-  }
-}
-
 // GET <base>/invoice.js and POST <base>/invoice ("/invoice" on the Workers, "/api/invoice" on Pages).
 // Returns null for any other request.
 async function handle(request, env) {
@@ -576,9 +524,6 @@ async function handle(request, env) {
   const parsed = parsePlan(planText);
   if (!parsed.months) return json({ success: true, invoice: false }, 200, origin);
 
-  const seen = await seenBefore(env, email, planText);
-  if (seen.hit) return json({ success: true, duplicate: true }, 200, origin);
-
   const link = linkFor(parsed.usd);
   const S = SITE, from = `${S.name} <${S.from || S.email}>`, admin = S.admin || S.email;
   const who = `${name || "-"} / ${email}`, price = parsed.amount == null ? "?" : money(parsed.amount, parsed.cur, false);
@@ -599,7 +544,6 @@ async function handle(request, env) {
       `<p>Invoice emailed to the client.</p><p>${facts}<br>Price shown to the client: ${esc(price)}<br>Link ($${parsed.usd}): <a href="${link}">${link}</a></p>`, email);
     return json({ success: true, invoice: true }, 200, origin);
   } catch (err) {
-    if (seen.undo) await seen.undo().catch(() => {});
     console.error("[invoice]", err.message);
     return json({ success: false, error: err.message }, 500, origin);
   }
