@@ -21,7 +21,8 @@
 const SITE = "iptvmapletv.com";
 const SITE_URL = "https://iptvmapletv.com";
 const PANEL_API = "https://activationpanel.ru/api/api.php";
-const PANEL_HOST = "http://line.trxdnscloud.ru";
+const PANEL_HOST = "http://vpn.fanjerseysonline.com"; // main portal: M3U links and first server in trial emails
+const ALT_HOST = "http://line.trxdnscloud.ru"; // second portal URL shown in trial emails
 const PANEL_PACK = "USA - All";
 const FROM_EMAIL = "IPTVMaple <help@iptvmapletv.com>";
 const ADMIN_EMAIL = "help@iptvmapletv.com";
@@ -631,6 +632,7 @@ const EMAIL_BRAND = {
   "wa": "17828026280",
   "waLabel": "+1 782-802-6280",
   "host": PANEL_HOST,
+  "altHost": ALT_HOST,
   "replyYes": false,
   "noName": [
     "nicht angegeben",
@@ -857,8 +859,15 @@ function tkWa() {
   return `https://wa.me/${EMAIL_BRAND.wa}?text=${encodeURIComponent(tkFmt(EMAIL_TEXT.waText, { brand: EMAIL_BRAND.name }).replace(/&nbsp;/g, " "))}`;
 }
 
-function tkServer(m3uUrl) {
-  try { return new URL(m3uUrl).origin; } catch { return EMAIL_BRAND.host; }
+// Trial emails list every portal URL: the main one first, then the backup.
+function tkServers() {
+  return [...new Set([EMAIL_BRAND.host, EMAIL_BRAND.altHost].filter(Boolean))];
+}
+
+// The M3U link always uses the main portal (also for trials stored before the switch).
+function tkM3u(m3uUrl) {
+  const u = String(m3uUrl || ""), alt = EMAIL_BRAND.altHost;
+  return alt && u.startsWith(alt + "/") ? EMAIL_BRAND.host + u.slice(alt.length) : u;
 }
 
 // The site logo is served by this Worker, so it never depends on the website's own hosting.
@@ -954,7 +963,8 @@ function tkLabel(text, top) {
 // The login details: the one thing the customer needs from these emails.
 function tkLogins(username, password, m3uUrl, again) {
   const C = EMAIL_BRAND.c, T = EMAIL_TEXT;
-  const server = tkServer(m3uUrl);
+  const servers = tkServers();
+  m3uUrl = tkM3u(m3uUrl);
   const field = (k, v, first) => `
         <tr>
           <td class="tk-lbl" width="120" valign="top" style="padding:12px 0;${first ? "" : `border-top:1px solid ${C.line};`}font-size:14px;line-height:22px;color:${C.muted};">${k}</td>
@@ -966,7 +976,7 @@ function tkLogins(username, password, m3uUrl, again) {
         <div style="font-size:18px;line-height:24px;font-weight:700;color:${C.ink};">${again ? T.loginAgain : T.loginTitle}</div>
         ${tkLabel(T.xtream)}
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-          ${field(T.server, `<a href="${tkEsc(server)}" style="color:${C.ink};text-decoration:none;">${tkEsc(server)}</a>`, true)}
+          ${servers.map((s, i) => field(servers.length > 1 ? `${T.server} ${i + 1}` : T.server, `<a href="${tkEsc(s)}" style="color:${C.ink};text-decoration:none;">${tkEsc(s)}</a>`, i === 0)).join("")}
           ${field(T.username, tkEsc(username))}
           ${field(T.password, tkEsc(password))}
         </table>
