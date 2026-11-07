@@ -174,11 +174,12 @@
       btn: "Awesome, let’s go!",
     },
   };
-  const celebrate = (kind, email, next) => {
+  /* The celebration replaces the page: it can't be dismissed (no close button, no Escape, no backdrop
+     click), and its one button takes the client to the homepage, so the old inline confirmation never shows. */
+  const celebrate = (kind, email) => {
     const c = CELEBRATE[kind];
-    if (!c) { if (next) location.href = next; return; }
+    if (!c) { location.href = "/"; return; }
     $(".celebrate")?.remove();
-    const back = document.activeElement;
     const el = document.createElement("div");
     el.className = "celebrate";
     el.setAttribute("role", "dialog");
@@ -188,28 +189,15 @@
       `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * .35}s;--t:${3.2 + (i % 5) * .5}s;--r:${(i * 53) % 360}deg">${i % 3 ? "" : "🍁"}</i>`).join("");
     el.innerHTML = `<div class="celebrate-bits" aria-hidden="true">${bits}</div>
 <div class="celebrate-box">
-  <button class="celebrate-x" type="button" aria-label="Close">×</button>
   <svg class="celebrate-mark" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/><path d="M36 62 53 79 86 44"/></svg>
   <h2 id="celebrate-title">${c.title}</h2>
   ${c.lines.map((l) => `<p>${l}</p>`).join("")}
-  <button class="btn btn--primary btn--lg celebrate-go" type="button">${c.btn}</button>
+  <a class="btn btn--primary btn--lg celebrate-go" href="/">${c.btn}</a>
 </div>`;
     $$("[data-c-email]", el).forEach((b) => { b.textContent = email || "your email address"; });
-    const go = $(".celebrate-go", el), x = $(".celebrate-x", el);
-    const close = () => {
-      document.removeEventListener("keydown", onKey);
-      el.classList.add("is-out");
-      document.documentElement.classList.remove("celebrating");
-      setTimeout(() => el.remove(), 250);
-      if (next) location.href = next; else back?.focus?.({ preventScroll: true });
-    };
-    const onKey = (e) => {
-      if (e.key === "Escape") close();
-      if (e.key === "Tab") { e.preventDefault(); (document.activeElement === go ? x : go).focus(); }
-    };
-    document.addEventListener("keydown", onKey);
-    x.addEventListener("click", close);
-    go.addEventListener("click", close);
+    const go = $(".celebrate-go", el);
+    // keep keyboard focus on the single button; Escape does nothing
+    el.addEventListener("keydown", (e) => { if (e.key === "Tab") { e.preventDefault(); go.focus(); } });
     document.body.append(el);
     document.documentElement.classList.add("celebrating");
     go.focus({ preventScroll: true });
@@ -286,9 +274,8 @@
             keepalive: true,
           }).catch(() => {});
         }
-        // free trial / plan order: full-screen celebration first; closing it continues to the thank-you page
-        // when the server gave one (orders, manual trials), otherwise reveals the in-card success panel below.
-        if (type === "free-trial" || type === "order") { celebrate(type, json.data.email || fd.get("email-1"), json.data.url || ""); if (json.data.url) return; }
+        // free trial / plan order: full-screen celebration only (its button goes to the homepage)
+        if (type === "free-trial" || type === "order") { form.reset(); celebrate(type, json.data.email || fd.get("email-1")); return; }
         else if (json.data.url) { location.href = json.data.url; return; }
         form.reset();
         const card = form.closest(".order-card"), done = card && $("[data-success]", card);
