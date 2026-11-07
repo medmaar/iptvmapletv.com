@@ -152,6 +152,73 @@
     return null;
   };
 
+  /* full-screen celebration after a free-trial request or a plan order.
+     Preview without submitting: add ?celebrate=trial or ?celebrate=order to any page URL. */
+  const CELEBRATE = {
+    "free-trial": {
+      title: "Your free trial is on its way!",
+      lines: [
+        "Our tech beavers are paddling your login over to <b data-c-email></b> as fast as their little tails allow. 🦫",
+        "It usually lands in under 2 minutes. Check your <b>inbox</b> AND your <b>spam</b> folder, because sometimes our email gets shy and hides in there.",
+        "Your only job for the next 24 hours: popcorn. 🍿",
+      ],
+      btn: "Got it, grabbing the popcorn",
+    },
+    order: {
+      title: "You did it! Order placed.",
+      lines: [
+        "Legendary move. Your couch has been informed and it is very proud of you. 🛋️",
+        "Your invoice is flying to <b data-c-email></b> right now. Check your <b>inbox</b> AND your <b>spam</b> folder (emails love a good game of hide and seek).",
+        "Pay the invoice and your channels start rolling faster than a Zamboni on fresh ice. 🏒",
+      ],
+      btn: "Awesome, let’s go!",
+    },
+  };
+  const celebrate = (kind, email, next) => {
+    const c = CELEBRATE[kind];
+    if (!c) { if (next) location.href = next; return; }
+    $(".celebrate")?.remove();
+    const back = document.activeElement;
+    const el = document.createElement("div");
+    el.className = "celebrate";
+    el.setAttribute("role", "dialog");
+    el.setAttribute("aria-modal", "true");
+    el.setAttribute("aria-labelledby", "celebrate-title");
+    const bits = Array.from({ length: 28 }, (_, i) =>
+      `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * .35}s;--t:${3.2 + (i % 5) * .5}s;--r:${(i * 53) % 360}deg">${i % 3 ? "" : "🍁"}</i>`).join("");
+    el.innerHTML = `<div class="celebrate-bits" aria-hidden="true">${bits}</div>
+<div class="celebrate-box">
+  <button class="celebrate-x" type="button" aria-label="Close">×</button>
+  <svg class="celebrate-mark" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/><path d="M36 62 53 79 86 44"/></svg>
+  <h2 id="celebrate-title">${c.title}</h2>
+  ${c.lines.map((l) => `<p>${l}</p>`).join("")}
+  <button class="btn btn--primary btn--lg celebrate-go" type="button">${c.btn}</button>
+</div>`;
+    $$("[data-c-email]", el).forEach((b) => { b.textContent = email || "your email address"; });
+    const go = $(".celebrate-go", el), x = $(".celebrate-x", el);
+    const close = () => {
+      document.removeEventListener("keydown", onKey);
+      el.classList.add("is-out");
+      document.documentElement.classList.remove("celebrating");
+      setTimeout(() => el.remove(), 250);
+      if (next) location.href = next; else back?.focus?.({ preventScroll: true });
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") close();
+      if (e.key === "Tab") { e.preventDefault(); (document.activeElement === go ? x : go).focus(); }
+    };
+    document.addEventListener("keydown", onKey);
+    x.addEventListener("click", close);
+    go.addEventListener("click", close);
+    document.body.append(el);
+    document.documentElement.classList.add("celebrating");
+    go.focus({ preventScroll: true });
+  };
+  {
+    const q = new URLSearchParams(location.search).get("celebrate");
+    if (q) celebrate(q === "order" ? "order" : "free-trial", "you@example.com");
+  }
+
   /* order / trial / referral forms -> /api/ajax (Pages Function) */
   $$("form[data-lead-form]").forEach((form) => {
     const btn = $("button[type='submit']", form);
@@ -219,7 +286,10 @@
             keepalive: true,
           }).catch(() => {});
         }
-        if (json.data.url) { location.href = json.data.url; return; }
+        // free trial / plan order: full-screen celebration first; closing it continues to the thank-you page
+        // when the server gave one (orders, manual trials), otherwise reveals the in-card success panel below.
+        if (type === "free-trial" || type === "order") { celebrate(type, json.data.email || fd.get("email-1"), json.data.url || ""); if (json.data.url) return; }
+        else if (json.data.url) { location.href = json.data.url; return; }
         form.reset();
         const card = form.closest(".order-card"), done = card && $("[data-success]", card);
         if (done) {
