@@ -54,6 +54,7 @@ To also run the form functions locally: `npm install` then `npm run dev` (Wrangl
 
 - **Change a price:** edit `price` / `original` in `src/data/plans.json`, push.
 - **Change the WhatsApp number:** edit the `/go/wa` line at the top of `src/static/_redirects` (every WhatsApp button links to `/go/wa`).
+- **Change the success screens** (full-screen checkmark after a free trial or an order): edit `CELEBRATE` in `src/static/js/site.js`. Preview them on any page with `?celebrate=trial` or `?celebrate=order`.
 - **Add a FAQ:** add `{"q": "...", "a": "<p>...</p>"}` to `src/data/faq.json`.
 - **Add a text page:** create `src/content/<slug>.html` (copy the meta block from an existing one) and
   add it to `PROSE` in `sitegen/pages.py`.
