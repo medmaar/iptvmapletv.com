@@ -554,8 +554,58 @@ return { handle, hookScript, invoiceEmail, parsePlan, describe, linkFor, money }
 
 // ── end invoice emails ──
 
+// ── order notification ──
+// The site's order, referral and manual free-trial forms POST { type, plan, price, name, email, whatsapp, country,
+// friend_*, page } here after /api/ajax has accepted them, and the site inbox gets the order email
+// ("iptvmapletv.com - 12 Months — $89 / name / email", reply-to the client). The Pages Function only stores
+// leads in KV, so without this nobody is emailed when an order comes in. No dedupe: every order is emailed.
+async function handleOrderNotice(request, env) {
+  if (new URL(request.url).pathname !== "/order") return null;
+  const headers = cors(request);
+  const res = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { ...headers, "Content-Type": "application/json" } });
+  if (request.method === "OPTIONS") return new Response(null, { headers });
+  if (request.method !== "POST") return res({ success: false, error: "POST only" }, 405);
+  // Only the site's own pages send orders here.
+  if (!ALLOWED_ORIGIN.test(request.headers.get("Origin") || "")) return res({ success: false, error: "unknown site" }, 403);
+  let body;
+  try { body = await request.json(); } catch { return res({ success: false, error: "Invalid JSON" }, 400); }
+  const get = (k) => String(body[k] || "").trim().slice(0, 200);
+  if (get("website")) return res({ success: true });
+  const type = ["order", "referral", "free-trial"].includes(get("type")) ? get("type") : "order";
+  const name = get("name"), email = get("email"), plan = get("plan"), price = get("price").replace(/[^\d.]/g, "");
+  if (!name && !email) return res({ success: false, error: "empty" }, 400);
+  if (!env.RESEND_KEY) return res({ success: false, error: "RESEND_KEY secret not set" }, 500);
+  const who = `${name || "-"} / ${email || "-"}`;
+  const subject = type === "referral" ? `${SITE} - Referral / ${who}`
+    : type === "free-trial" ? `${SITE} - Free trial (manual) / ${who}`
+    : `${SITE} - ${plan || "Order"}${price ? ` — $${price}` : ""} / ${who}`;
+  const row = (k, v) => `<tr><td style="color:#888;width:130px;">${k}</td><td>${esc(v || "—")}</td></tr>`;
+  const title = type === "referral" ? "New referral" : type === "free-trial" ? "New free trial request (send by hand)" : "New order";
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;font-size:14px;color:#333;padding:20px;">
+  <h2 style="color:#ff2d4a;margin-top:0;">${title} — ${SITE}</h2>
+  <table cellpadding="6" cellspacing="0" border="0">
+    ${type === "order" ? row("Plan", plan) + row("Price", price ? `$${price}` : "") : ""}${row("Name", name)}${row("Email", email)}${row("WhatsApp", get("whatsapp"))}${row("Country", get("country"))}
+    ${type === "referral" ? row("Friend's name", get("friend_name")) + row("Friend's phone", get("friend_phone")) + row("Friend's email", get("friend_email")) : ""}
+    ${row("Page", get("page"))}${row("IP country", request.cf?.country)}${row("Received", new Date().toISOString())}
+  </table></body></html>`;
+  try {
+    const payload = { from: env.TRIAL_FROM_EMAIL || FROM_EMAIL, to: env.TRIAL_ADMIN_EMAIL || ADMIN_EMAIL, subject, html };
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) payload.reply_to = email;
+    const sent = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${env.RESEND_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!sent.ok) throw new Error(`Resend ${sent.status}: ${(await sent.text()).slice(0, 200)}`);
+    return res({ success: true });
+  } catch (err) {
+    console.error("[order_notice]", err.message);
+    return res({ success: false, error: err.message }, 502);
+  }
+}
+
 export default {
-  async fetch(request, env) { return (await INVOICE.handle(request, env)) || tkLogoResponse(request) || handleFetch(request, env); },
+  async fetch(request, env) { return (await INVOICE.handle(request, env)) || (await handleOrderNotice(request, env)) || tkLogoResponse(request) || handleFetch(request, env); },
   async scheduled(event, env, ctx) { ctx.waitUntil(handleScheduled(env)); },
 };
 
