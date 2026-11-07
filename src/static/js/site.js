@@ -196,6 +196,20 @@
           window.gtag && gtag("event", "generate_lead", { form_type: type, value: +form.dataset.value || 0, currency: "USD" });
           window.rdt && rdt("track", "Lead");
         } catch (_) {}
+        // Email the order (or referral / manual trial request) to the site inbox. /api/ajax only stores it.
+        // A trial the worker already automated is notified by the worker itself. Fire-and-forget.
+        if (!form.dataset.trialEndpoint || json.data.url) {
+          fetch("https://iptv-trial-iptvmapletv.medmaar.workers.dev/order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type, plan: fd.get("plan") || "", price: form.dataset.value || "", name: fd.get("name-1") || "", email: fd.get("email-1") || "",
+              whatsapp: fd.get("phone-1") || "", country: fd.get("address-1-country") || "", page: location.pathname,
+              friend_name: fd.get("name-2") || "", friend_phone: fd.get("phone-2") || "", friend_email: fd.get("email-2") || "",
+            }),
+            keepalive: true,
+          }).catch(() => {});
+        }
         // Plan orders: email the client their payment invoice. Fire-and-forget, never blocks the order.
         if (type === "order") {
           fetch("https://iptv-trial-iptvmapletv.medmaar.workers.dev/invoice", {
