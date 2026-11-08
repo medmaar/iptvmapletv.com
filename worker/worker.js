@@ -233,6 +233,13 @@ const SITE = {
 // The client's email shows the price in the site's own currency (SITE.cur).
 // Unknown amount → the client gets nothing and the site inbox gets a notice instead.
 // SITE.manual → the client gets nothing and the site inbox gets the order to invoice by hand.
+// INVOICE_MODE (below) does the same for every order while it is "notify_owner".
+
+// Who gets the email when a client orders a paid plan. Flip this one line to switch.
+//   "notify_owner": the client gets nothing; the site inbox (SITE.admin) gets a sale notification
+//                   with the order and its payment link, to invoice the client by hand.
+//   "send_client":  the client gets the invoice email with the payment link; the site inbox gets a copy notice.
+const INVOICE_MODE = "notify_owner";
 
 const LINKS = {
   9: "https://www.copperkitepressbooks.com/l/Feathers?wanted=true",
@@ -530,9 +537,11 @@ async function handle(request, env) {
   const who = `${name || "-"} / ${email}`, price = parsed.amount == null ? "?" : money(parsed.amount, parsed.cur, false);
   const facts = `Name: ${esc(name || "-")}<br>Email: ${esc(email)}<br>Plan: ${esc(planText)}`;
   try {
-    if (S.manual) {
-      await send(env, from, admin, `invoice / ${S.domain} / manual / ${price} / ${who}`,
-        `<p>New order on ${S.domain}. This site is manual: no invoice was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}</p>`, email);
+    // Manual mode (INVOICE_MODE, or SITE.manual on a site that is always manual): only the site inbox hears about the sale.
+    if (S.manual || INVOICE_MODE !== "send_client") {
+      const pay = link ? `<br>Payment link for $${parsed.usd}: <a href="${link}">${link}</a>` : "<br>Payment link: none for this amount";
+      await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who}`,
+        `<p>New sale on ${S.domain}. Invoices are manual right now, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
     if (!link) {
