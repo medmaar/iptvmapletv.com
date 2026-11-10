@@ -239,7 +239,7 @@ const SITE = {
 //   "notify_owner": the client gets nothing; the site inbox (SITE.admin) gets a sale notification
 //                   with the order and its payment link, to invoice the client by hand.
 //   "send_client":  the client gets the invoice email with the payment link; the site inbox gets a copy notice.
-const INVOICE_MODE = "notify_owner";
+const INVOICE_MODE = "send_client";
 
 const LINKS = {
   // 9 has no link on purpose: a $9 order stays manual (the site inbox gets it, no payment link).
