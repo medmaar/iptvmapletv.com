@@ -239,10 +239,29 @@ const SITE = {
 //   "notify_owner": the client gets nothing; the site inbox (SITE.admin) gets a sale notification
 //                   with the order and its payment link, to invoice the client by hand.
 //   "send_client":  the client gets the invoice email with the payment link; the site inbox gets a copy notice.
-const INVOICE_MODE = "notify_owner";
+const INVOICE_MODE = "send_client";
 
 const LINKS = {
-  // Empty on purpose since 13 Nov 2026: every order is manual (no payment link anywhere). Old links: invoice-emails/REGISTRY.md.
+  // 9 has no link on purpose: a $9 order stays manual (the site inbox gets it, no payment link).
+  18: "https://copperkitepress.gumroad.com/l/Flutter?wanted=true",
+  27: "http://www.copperkitepressbooks.com/l/Dragon?wanted=true",
+  29: "https://www.thewordshome.com/l/unaVolta?wanted=true",
+  36: "http://www.copperkitepressbooks.com/l/Trailhead?wanted=true",
+  39: "http://www.copperkitepressbooks.com/l/Pebble?wanted=true",
+  45: "http://www.copperkitepressbooks.com/l/Farmyard?wanted=true",
+  49: "http://www.copperkitepressbooks.com/l/WhiskersandWags?wanted=true",
+  50: "https://www.thewordshome.com/l/CapolavoriePagine?wanted=true",
+  69: "https://copperkitepress.gumroad.com/l/KeyChanges?wanted=true",
+  75: "http://www.copperkitepressbooks.com/l/Rainforest?wanted=true",
+  89: "http://www.copperkitepressbooks.com/l/Lab?wanted=true",
+  99: "http://www.copperkitepressbooks.com/l/Trivia?wanted=true",
+  105: "https://copperkitepress.gumroad.com/l/Parrot?wanted=true",
+  120: "http://www.copperkitepressbooks.com/l/Junction?wanted=true",
+  135: "https://www.copperkitepressbooks.com/l/Casebook?wanted=true",
+  140: "http://www.copperkitepressbooks.com/l/PassporttoTrivia?wanted=true",
+  175: "http://www.copperkitepressbooks.com/l/WordsoftheRainforest?wanted=true",
+  180: "http://www.copperkitepressbooks.com/l/WagsSpot?wanted=true",
+  225: "http://www.copperkitepressbooks.com/l/CopperKite?wanted=true",
 };
 
 // The message text is Mo's, word for word; the other languages are straight translations of it.
