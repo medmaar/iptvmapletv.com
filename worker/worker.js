@@ -617,7 +617,7 @@ async function panelLine(env, email, whatsapp) {
     if (found) pack = found.id;
   } catch (err) { console.log("trial: bouquet lookup failed", err.message); }
 
-  const data = await panelGet(env, { action: "new", type: "m3u", sub: "99", pack, notes: `Trial / ${SITE} / ${email} | ${whatsapp || ""}` });
+  const data = await panelGet(env, { action: "new", type: "m3u", sub: "99", pack, note: `Trial / ${SITE} / ${email} | ${whatsapp || ""}`, notes: `Trial / ${SITE} / ${email} | ${whatsapp || ""}` });
   const item = Array.isArray(data) ? data[0] : data;
   if (!item || String(item.status) !== "true") throw new Error(item?.message || JSON.stringify(item).slice(0, 160));
   const u = new URL(item.url || "");
