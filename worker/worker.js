@@ -242,7 +242,7 @@ const SITE = {
 const INVOICE_MODE = "send_client";
 
 const LINKS = {
-  // 9 has no link on purpose: a $9 order stays manual (the site inbox gets it, no payment link).
+  9: "https://ingloriousb.itch.io/words-of-wonders-crossword",
   18: "https://copperkitepress.gumroad.com/l/Flutter?wanted=true",
   27: "http://www.copperkitepressbooks.com/l/Dragon?wanted=true",
   29: "https://www.thewordshome.com/l/unaVolta?wanted=true",
