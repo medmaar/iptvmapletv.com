@@ -541,7 +541,7 @@ async function handle(request, env) {
     if (S.manual || INVOICE_MODE !== "send_client") {
       const pay = link ? `<br>Payment link for $${parsed.usd}: <a href="${link}">${link}</a>` : "<br>Payment link: none for this amount";
       await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who}`,
-        `<p>New sale on ${S.domain}. Invoices are manual right now, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
+        `<p>New sale on ${S.domain}. ${S.manual ? "Invoices for this site are always sent by hand" : "Invoice emails to clients are switched off (INVOICE_MODE)"}, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
     if (!link) {
