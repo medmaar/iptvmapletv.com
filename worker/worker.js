@@ -21,7 +21,7 @@
 const SITE = "iptvmapletv.com";
 const SITE_URL = "https://iptvmapletv.com";
 const PANEL_API = "https://activationpanel.ru/api/api.php";
-const PANEL_HOST = "http://vpn.fanjerseysonline.com"; // main portal: M3U links and first server in trial emails
+const PANEL_HOST = "http://line.truthdaily.me"; // main portal: M3U links and first server in trial emails
 const ALT_HOST = "http://line.trxdnscloud.ru"; // second portal URL shown in trial emails
 const PANEL_PACK = "USA - All";
 const FROM_EMAIL = "IPTVMaple <help@iptvmapletv.com>";
@@ -928,7 +928,7 @@ function tkMoney(n) { const m = EMAIL_BRAND.money; return m.pre + (Number.isInte
 function tkLink(url, campaign) { const abs = /^https?:/.test(url) ? url : EMAIL_BRAND.url + url; return abs + (abs.includes("?") ? "&" : "?") + "utm_source=trial_email&utm_medium=email&utm_campaign=" + campaign; }
 function tkWa() { return `https://wa.me/${EMAIL_BRAND.wa}?text=${encodeURIComponent(EMAIL_BRAND.name + ": free trial")}`; }
 function tkServers() { return [...new Set([EMAIL_BRAND.host, EMAIL_BRAND.altHost].filter(Boolean))]; }
-function tkM3u(u) { u = String(u || ""); const alt = EMAIL_BRAND.altHost; return alt && u.startsWith(alt + "/") ? EMAIL_BRAND.host + u.slice(alt.length) : u; }
+function tkM3u(u) { u = String(u || ""); const h = EMAIL_BRAND.host; return h && /^https?:\/\/[^\/]+\/get\.php\?/.test(u) ? h + u.replace(/^https?:\/\/[^\/]+/, "") : u; } // M3U always on the main host, keeps path and credentials
 function tkPlain(v) { return String(v ?? "").split(/(?=[.:/?&=])/).map(p => `<span>${tkEsc(p)}</span>`).join(""); }
 
 function tkLogoResponse(request) {
