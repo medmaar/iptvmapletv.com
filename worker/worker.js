@@ -241,6 +241,16 @@ const SITE = {
 //   "send_client":  the client gets the invoice email with the payment link; the site inbox gets a copy notice.
 const INVOICE_MODE = "send_client";
 
+// Night pause: from 01:00 to 04:59 UTC (UTC+0 all year, no DST) no invoice is emailed to clients,
+// even in "send_client" mode. The order goes to the site inbox as a sale email, to invoice by hand.
+// Invoices go out as usual from 05:00 to 00:59 UTC. To change the hours, edit these two numbers.
+const NIGHT_PAUSE_FROM_UTC = 1; // first paused hour (01:00)
+const NIGHT_PAUSE_TO_UTC = 5;   // first hour invoices go out again (05:00)
+function nightPaused(now = new Date()) {
+  const h = now.getUTCHours();
+  return h >= NIGHT_PAUSE_FROM_UTC && h < NIGHT_PAUSE_TO_UTC;
+}
+
 const LINKS = {
   9: "https://ingloriousb.itch.io/words-of-wonders-crossword",
   18: "https://copperkitepress.gumroad.com/l/Flutter?wanted=true",
@@ -538,10 +548,15 @@ async function handle(request, env) {
   const facts = `Name: ${esc(name || "-")}<br>Email: ${esc(email)}<br>Plan: ${esc(planText)}`;
   try {
     // Manual mode (INVOICE_MODE, or SITE.manual on a site that is always manual): only the site inbox hears about the sale.
-    if (S.manual || INVOICE_MODE !== "send_client") {
+    // Night pause (01:00 to 04:59 UTC): same manual path, with its own wording.
+    const night = !S.manual && INVOICE_MODE === "send_client" && nightPaused();
+    if (S.manual || INVOICE_MODE !== "send_client" || night) {
       const pay = link ? `<br>Payment link for $${parsed.usd}: <a href="${link}">${link}</a>` : "<br>Payment link: none for this amount";
-      await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who}`,
-        `<p>New sale on ${S.domain}. ${S.manual ? "Invoices for this site are always sent by hand" : "Invoice emails to clients are switched off (INVOICE_MODE)"}, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
+      const why = S.manual ? "Invoices for this site are always sent by hand"
+        : night ? "Invoice emails to clients are paused at night (01:00 to 04:59 UTC)"
+        : "Invoice emails to clients are switched off (INVOICE_MODE)";
+      await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who}${night ? " / night pause" : ""}`,
+        `<p>New sale on ${S.domain}. ${why}, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
     if (!link) {
