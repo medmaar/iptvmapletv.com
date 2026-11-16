@@ -291,7 +291,8 @@
         msg.textContent = json.data.message;
         msg.className = "form-msg is-ok";
       } catch (err) {
-        msg.textContent = err.shown ? err.message : "Sorry — we couldn't send your details. Please try again or message us on WhatsApp.";
+        msg.textContent = form.dataset.leadForm === "free-trial" ? "Our free trials are currently paused."
+          : err.shown ? err.message : "Sorry — we couldn't send your details. Please try again or message us on WhatsApp.";
         msg.className = "form-msg is-error";
       } finally {
         btn.disabled = false; btn.classList.remove("is-loading");
