@@ -239,7 +239,9 @@ const SITE = {
 //   "notify_owner": the client gets nothing; the site inbox (SITE.admin) gets a sale notification
 //                   with the order and its payment link, to invoice the client by hand.
 //   "send_client":  the client gets the invoice email with the payment link; the site inbox gets a copy notice.
-const INVOICE_MODE = "send_client";
+// 16 Nov 2026: every invoice is manual. Clients are never emailed an invoice or payment link, at any hour.
+// The client send was removed from handle() below, so this switch can no longer turn it back on.
+const INVOICE_MODE = "notify_owner";
 
 // Night pause: from 01:00 to 04:59 UTC (UTC+0 all year, no DST) no invoice is emailed to clients,
 // even in "send_client" mode. The order goes to the site inbox as a sale email, to invoice by hand.
@@ -559,15 +561,8 @@ async function handle(request, env) {
         `<p>New sale on ${S.domain}. ${why}, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
-    if (!link) {
-      await send(env, from, admin, `invoice NOT sent / ${S.domain} / ${price} / ${who}`,
-        `<p>No payment link matches this order, so no invoice was emailed to the client. Please send it by hand.</p><p>${facts}<br>Price read: ${esc(price)}</p>`, email);
-      return json({ success: true, invoice: false }, 200, origin);
-    }
-    await send(env, from, email, T().subject, invoiceEmail({ name, parsed, link }), S.email);
-    await send(env, from, admin, `invoice / ${S.domain} / $${parsed.usd} / ${who}`,
-      `<p>Invoice emailed to the client.</p><p>${facts}<br>Price shown to the client: ${esc(price)}<br>Link ($${parsed.usd}): <a href="${link}">${link}</a></p>`, email);
-    return json({ success: true, invoice: true }, 200, origin);
+    // Clients never get an invoice email (manual invoicing on every site since 16 Nov 2026).
+    return json({ success: true, invoice: false }, 200, origin);
   } catch (err) {
     console.error("[invoice]", err.message);
     return json({ success: false, error: err.message }, 500, origin);
