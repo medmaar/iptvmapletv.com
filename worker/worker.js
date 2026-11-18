@@ -223,6 +223,7 @@ const SITE = {
   "wa": "17828026280",
   "waLabel": "+1 782-802-6280"
 };
+const HEADER_PNG = null;
 
 // Invoice email for paid plans (1, 3, 6, 12 months). Free trials never come here.
 // The site's order form POSTs { name, email, plan } to /invoice right after its order email is sent.
@@ -239,14 +240,16 @@ const SITE = {
 //   "notify_owner": the client gets nothing; the site inbox (SITE.admin) gets a sale notification
 //                   with the order and its payment link, to invoice the client by hand.
 //   "send_client":  the client gets the invoice email with the payment link; the site inbox gets a copy notice.
-// 16 Nov 2026: every invoice is manual. Clients are never emailed an invoice or payment link, at any hour.
-// The client send was removed from handle() below, so this switch can no longer turn it back on.
-const INVOICE_MODE = "notify_owner";
+// 18 Nov 2026: invoices to clients are back on (Mo), with the night queue below.
+const INVOICE_MODE = "send_client";
 
-// Night pause: from 01:00 to 04:59 UTC (UTC+0 all year, no DST) no invoice is emailed to clients,
-// even in "send_client" mode. The order goes to the site inbox as a sale email, to invoice by hand.
-// Invoices go out as usual from 05:00 to 00:59 UTC. To change the hours, edit these two numbers.
-const NIGHT_PAUSE_FROM_UTC = 1; // first paused hour (01:00)
+// Night queue: invoices are emailed to clients from 05:00 to 00:59 UTC (UTC+0 all year, no DST).
+// An order placed from 01:00 to 04:59 UTC is saved in the Worker's KV ("invoiceq:" keys) and emailed
+// after 05:00 by flushQueue(): GET/POST <base>/invoice-flush (run by a scheduled GitHub workflow in
+// mojo4k.de at 05:00 UTC and a few times after) and every daytime order also sends what is waiting.
+// The site inbox hears about the night order at once ("sale queued / ...") and again when it is sent.
+// To change the hours, edit these two numbers.
+const NIGHT_PAUSE_FROM_UTC = 1; // first queued hour (01:00)
 const NIGHT_PAUSE_TO_UTC = 5;   // first hour invoices go out again (05:00)
 function nightPaused(now = new Date()) {
   const h = now.getUTCHours();
@@ -254,26 +257,26 @@ function nightPaused(now = new Date()) {
 }
 
 const LINKS = {
-  9: "https://ingloriousb.itch.io/words-of-wonders-crossword",
-  18: "https://copperkitepress.gumroad.com/l/Flutter?wanted=true",
-  27: "http://www.copperkitepressbooks.com/l/Dragon?wanted=true",
-  29: "https://www.thewordshome.com/l/unaVolta?wanted=true",
-  36: "http://www.copperkitepressbooks.com/l/Trailhead?wanted=true",
-  39: "http://www.copperkitepressbooks.com/l/Pebble?wanted=true",
-  45: "http://www.copperkitepressbooks.com/l/Farmyard?wanted=true",
-  49: "http://www.copperkitepressbooks.com/l/WhiskersandWags?wanted=true",
-  50: "https://www.thewordshome.com/l/CapolavoriePagine?wanted=true",
-  69: "https://copperkitepress.gumroad.com/l/KeyChanges?wanted=true",
-  75: "http://www.copperkitepressbooks.com/l/Rainforest?wanted=true",
-  89: "http://www.copperkitepressbooks.com/l/Lab?wanted=true",
-  99: "http://www.copperkitepressbooks.com/l/Trivia?wanted=true",
-  105: "https://copperkitepress.gumroad.com/l/Parrot?wanted=true",
-  120: "http://www.copperkitepressbooks.com/l/Junction?wanted=true",
-  135: "https://www.copperkitepressbooks.com/l/Casebook?wanted=true",
-  140: "http://www.copperkitepressbooks.com/l/PassporttoTrivia?wanted=true",
-  175: "http://www.copperkitepressbooks.com/l/WordsoftheRainforest?wanted=true",
-  180: "http://www.copperkitepressbooks.com/l/WagsSpot?wanted=true",
-  225: "http://www.copperkitepressbooks.com/l/CopperKite?wanted=true",
+  9: "https://www.thewordshome.com/l/croissPourseniorset?wanted=true",
+  18: "https://www.thewordshome.com/l/LibroAttivitaViaggioper?wanted=true",
+  27: "https://www.thewordshome.com/l/EserciziVariati?wanted=true",
+  29: "https://www.thewordshome.com/l/EserciziVariati?wanted=true",
+  36: "https://www.thewordshome.com/l/EdizioneEserciziVariati?wanted=true",
+  39: "https://www.thewordshome.com/l/CruciverbaperNonni?wanted=true",
+  45: "https://www.thewordshome.com/l/MemoriaperAnzianiIntelligenti?wanted=true",
+  49: "https://www.thewordshome.com/l/MotsMlsMalvoyants?wanted=true",
+  50: "https://www.thewordshome.com/l/CapolavoriePagineImmortali?wanted=true",
+  69: "https://www.thewordshome.com/l/GiochidiMemoriaperAnzianiunviaggio?wanted=true",
+  75: "https://www.thewordshome.com/l/MusicaeVitadiPaese?wanted=true",
+  89: "https://www.thewordshome.com/l/CruciverbaPerAnzianieAdulti?wanted=true",
+  99: "https://www.thewordshome.com/l/VeneziaeCittdArteCofanetto?wanted=true",
+  105: "https://www.thewordshome.com/l/ParoleIntrecciateper?wanted=true",
+  120: "https://www.thewordshome.com/l/AttivitaCaratteriGrandiperAnziani?wanted=true",
+  135: "https://www.thewordshome.com/l/IntrecciateperAnzianie?wanted=true",
+  140: "https://www.thewordshome.com/l/MemorieFesteSporteSaggezza?wanted=true",
+  175: "https://www.thewordshome.com/l/OttoLibridaNordaSud?wanted=true",
+  180: "https://www.thewordshome.com/l/GrandeRaccoltadellaVita?wanted=true",
+  225: "https://www.thewordshome.com/l/NaturaeSaporiCofanetto?wanted=true",
 };
 
 // The message text is Mo's, word for word; the other languages are straight translations of it.
@@ -425,9 +428,11 @@ function invoiceEmail({ name, parsed, link }) {
 <tr><td align="center" class="o" style="padding:24px 10px;">
 <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.card}" style="max-width:600px;background-color:${C.card};border-radius:10px;border-collapse:separate;font-family:${FONT};">
-  <tr><td align="center" bgcolor="${S.head}" style="background-color:${S.head};border-bottom:1px solid ${S.headLine || S.head};border-radius:10px 10px 0 0;padding:24px 20px;">
+  ${S.header ? `<tr><td align="center" bgcolor="${S.head}" style="background-color:${S.head};border-radius:10px 10px 0 0;padding:0;font-size:0;line-height:0;">
+    <a href="${S.url}" target="_blank"><img src="${S.header.src}" width="600" height="${S.header.h}" alt="${esc(S.name)}" style="display:block;width:100%;max-width:600px;height:auto;border-radius:10px 10px 0 0;color:#FFFFFF;font:700 22px ${FONT};"></a>
+  </td></tr>` : `<tr><td align="center" bgcolor="${S.head}" style="background-color:${S.head};border-bottom:1px solid ${S.headLine || S.head};border-radius:10px 10px 0 0;padding:24px 20px;">
     <a href="${S.url}" target="_blank"><img src="${S.logo.src}" width="${S.logo.w}" height="${S.logo.h}" alt="${esc(S.name)}" style="display:block;margin:0 auto;max-width:100%;height:auto;color:${S.head === "#FFFFFF" ? C.ink : "#FFFFFF"};font:700 22px ${FONT};"></a>
-  </td></tr>
+  </td></tr>`}
   <tr><td class="x" style="padding:32px 40px 8px;">
     ${p(greeting(name), `color:${C.ink};font-weight:600;`)}
     ${p(fmt(t.intro, { what: esc(what) }))}
@@ -516,12 +521,121 @@ async function send(env, from, to, subject, html, replyTo) {
   if (!res.ok) throw new Error(`Resend (${res.status}): ${await res.text()}`);
 }
 
-// GET <base>/invoice.js and POST <base>/invoice ("/invoice" on the Workers, "/api/invoice" on Pages).
+// One invoice per address and plan every 10 minutes, so a double click never sends two.
+// Kept in the Worker's KV under "invoice:" (trial records use other keys); Cache API as a fallback.
+async function seenBefore(env, email, planText) {
+  const raw = new TextEncoder().encode(`${email.toLowerCase()}|${planText}`);
+  const hash = [...new Uint8Array(await crypto.subtle.digest("SHA-256", raw))].map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+  const kv = env.TRIALS || env.TRIAL_KV, key = `invoice:${SITE.domain}:${hash}`;
+  try {
+    if (kv) {
+      if (await kv.get(key)) return { hit: true };
+      await kv.put(key, "1", { expirationTtl: 600 });
+      return { hit: false, undo: () => kv.delete(key) };
+    }
+    const cache = caches.default, req = new Request(`https://invoice.local/${key}`);
+    if (await cache.match(req)) return { hit: true };
+    await cache.put(req, new Response("1", { headers: { "Cache-Control": "max-age=600" } }));
+    return { hit: false, undo: () => cache.delete(req) };
+  } catch (err) {
+    console.error("[invoice] dedupe", err.message);
+    return { hit: false };
+  }
+}
+
+// The client's invoice email plus the site inbox's copy notice.
+async function sendInvoice(env, { name, email, planText, parsed, link, queuedAt }) {
+  const S = SITE, from = `${S.name} <${S.from || S.email}>`, admin = S.admin || S.email;
+  const who = `${name || "-"} / ${email}`, price = parsed.amount == null ? "?" : money(parsed.amount, parsed.cur, false);
+  const facts = `Name: ${esc(name || "-")}<br>Email: ${esc(email)}<br>Plan: ${esc(planText)}`;
+  await send(env, from, email, T().subject, invoiceEmail({ name, parsed, link }), S.email);
+  const late = queuedAt ? `<br>Ordered at ${esc(queuedAt)} (night), sent from the morning queue.` : "";
+  await send(env, from, admin, `invoice / ${S.domain} / $${parsed.usd} / ${who}${queuedAt ? " / from night queue" : ""}`,
+    `<p>Invoice emailed to the client.</p><p>${facts}<br>Price shown to the client: ${esc(price)}<br>Link ($${parsed.usd}): <a href="${link}">${link}</a>${late}</p>`, email).catch((e) => console.error("[invoice] admin copy", e.message));
+}
+
+const QKEY = () => `invoiceq:${SITE.domain}:`;
+const kvOf = (env) => env.TRIALS || env.TRIAL_KV || null;
+
+// Saves a night order (kept 14 days at most). Returns false when there is no KV to save it in.
+async function enqueue(env, order) {
+  const kv = kvOf(env);
+  if (!kv) return false;
+  const at = new Date();
+  const key = `${QKEY()}${at.toISOString()}:${Math.random().toString(36).slice(2, 10)}`;
+  await kv.put(key, JSON.stringify({ ...order, at: at.toISOString(), tries: 0 }), { expirationTtl: 14 * 86400 });
+  return true;
+}
+
+// Emails every queued night invoice, oldest first. Does nothing from 01:00 to 04:59 UTC.
+// A failed send stays queued for the next run; after 5 failures the site inbox gets it to send by hand.
+async function flushQueue(env) {
+  if (INVOICE_MODE !== "send_client" || SITE.manual) return { ok: true, sent: 0, waiting: 0, note: "manual" };
+  if (nightPaused()) return { ok: true, sent: 0, waiting: null, note: "night: queue is sent from 05:00 UTC" };
+  const kv = kvOf(env);
+  if (!kv) return { ok: true, sent: 0, waiting: 0, note: "no kv" };
+  // One run at a time (the scheduled run and a daytime order can arrive together).
+  const lock = `invoiceq-lock:${SITE.domain}`;
+  if (await kv.get(lock)) return { ok: true, sent: 0, waiting: null, note: "another run is sending" };
+  await kv.put(lock, "1", { expirationTtl: 60 });
+  let sent = 0, failed = 0, keys = [], cursor;
+  try {
+    do {
+      const page = await kv.list({ prefix: QKEY(), cursor });
+      keys.push(...page.keys.map((k) => k.name));
+      cursor = page.list_complete ? null : page.cursor;
+    } while (cursor);
+    keys.sort();
+    for (const key of keys) {
+      const raw = await kv.get(key);
+      if (!raw) continue;
+      let o;
+      try { o = JSON.parse(raw); } catch { await kv.delete(key); continue; }
+      const parsed = parsePlan(o.planText), link = linkFor(parsed.usd);
+      try {
+        if (!link) throw new Error(`no link for ${parsed.usd}`);
+        // Claim it before sending, so a second run can never email the same invoice twice.
+        await kv.delete(key);
+        await sendInvoice(env, { ...o, parsed, link, queuedAt: o.at });
+        sent++;
+      } catch (err) {
+        failed++;
+        const tries = (o.tries || 0) + 1;
+        console.error("[invoice] queued send", key, err.message);
+        if (tries >= 5 || !link) {
+          const S = SITE, from = `${S.name} <${S.from || S.email}>`;
+          await send(env, from, S.admin || S.email, `invoice NOT sent / ${S.domain} / ${o.planText} / ${o.name || "-"} / ${o.email}`,
+            `<p>A night order could not be emailed from the morning queue (${esc(err.message)}). Please send the invoice yourself.</p><p>Name: ${esc(o.name || "-")}<br>Email: ${esc(o.email)}<br>Plan: ${esc(o.planText)}<br>Ordered at: ${esc(o.at)}</p>`, o.email).catch(() => {});
+          await kv.delete(key);
+        } else {
+          await kv.put(key, JSON.stringify({ ...o, tries }), { expirationTtl: 14 * 86400 });
+        }
+      }
+    }
+  } finally {
+    await kv.delete(lock).catch(() => {});
+  }
+  return { ok: failed === 0, sent, failed, waiting: keys.length - sent };
+}
+
+// GET <base>/invoice.js, GET <base>/invoice/header.png and POST <base>/invoice ("/invoice" on the Workers, "/api/invoice" on Pages).
 // Returns null for any other request.
 async function handle(request, env) {
   const url = new URL(request.url);
   if (url.pathname.endsWith("/invoice.js") && request.method === "GET") {
     return new Response(hookScript(url.origin + url.pathname.slice(0, -"/invoice.js".length)), { headers: { "Content-Type": "application/javascript; charset=utf-8", "Cache-Control": "public, max-age=300", "Access-Control-Allow-Origin": "*" } });
+  }
+  // The email's header (brand colour + logo) as one picture, so mail apps in dark mode can't
+  // recolour the band behind a light logo.
+  if (url.pathname.endsWith("/invoice/header.png") && request.method === "GET" && HEADER_PNG) {
+    const bin = atob(HEADER_PNG), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Response(bytes, { headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=31536000, immutable", "Access-Control-Allow-Origin": "*" } });
+  }
+  // Sends the invoices queued at night (only from 05:00 UTC). Safe to call any time: it only sends what is due.
+  if (url.pathname.endsWith("/invoice-flush") && (request.method === "GET" || request.method === "POST")) {
+    const r = await flushQueue(env);
+    return new Response(JSON.stringify(r), { status: r.ok ? 200 : 500, headers: { "Content-Type": "application/json" } });
   }
   if (!url.pathname.endsWith("/invoice")) return null;
   const origin = request.headers.get("Origin") || "";
@@ -544,32 +658,52 @@ async function handle(request, env) {
   const parsed = parsePlan(planText);
   if (!parsed.months) return json({ success: true, invoice: false }, 200, origin);
 
+  const seen = await seenBefore(env, email, planText);
+  if (seen.hit) return json({ success: true, duplicate: true }, 200, origin);
+
   const link = linkFor(parsed.usd);
   const S = SITE, from = `${S.name} <${S.from || S.email}>`, admin = S.admin || S.email;
   const who = `${name || "-"} / ${email}`, price = parsed.amount == null ? "?" : money(parsed.amount, parsed.cur, false);
   const facts = `Name: ${esc(name || "-")}<br>Email: ${esc(email)}<br>Plan: ${esc(planText)}`;
   try {
     // Manual mode (INVOICE_MODE, or SITE.manual on a site that is always manual): only the site inbox hears about the sale.
-    // Night pause (01:00 to 04:59 UTC): same manual path, with its own wording.
-    const night = !S.manual && INVOICE_MODE === "send_client" && nightPaused();
-    if (S.manual || INVOICE_MODE !== "send_client" || night) {
+    if (S.manual || INVOICE_MODE !== "send_client") {
       const pay = link ? `<br>Payment link for $${parsed.usd}: <a href="${link}">${link}</a>` : "<br>Payment link: none for this amount";
-      const why = S.manual ? "Invoices for this site are always sent by hand"
-        : night ? "Invoice emails to clients are paused at night (01:00 to 04:59 UTC)"
-        : "Invoice emails to clients are switched off (INVOICE_MODE)";
-      await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who}${night ? " / night pause" : ""}`,
+      const why = S.manual ? "Invoices for this site are always sent by hand" : "Invoice emails to clients are switched off (INVOICE_MODE)";
+      await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who}`,
         `<p>New sale on ${S.domain}. ${why}, so nothing was emailed to the client. Please deliver the order and send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}${pay}</p>`, email);
       return json({ success: true, invoice: false }, 200, origin);
     }
-    // Clients never get an invoice email (manual invoicing on every site since 16 Nov 2026).
-    return json({ success: true, invoice: false }, 200, origin);
+    if (!link) {
+      await send(env, from, admin, `invoice NOT sent / ${S.domain} / ${price} / ${who}`,
+        `<p>No payment link matches this order, so no invoice was emailed to the client. Please send it by hand.</p><p>${facts}<br>Price read: ${esc(price)}</p>`, email);
+      return json({ success: true, invoice: false }, 200, origin);
+    }
+    // Night (01:00 to 04:59 UTC): save the order; flushQueue() emails the invoice after 05:00 UTC.
+    if (nightPaused()) {
+      const queued = await enqueue(env, { name, email, planText });
+      if (queued) {
+        await send(env, from, admin, `sale queued / ${S.domain} / ${price} / ${who}`,
+          `<p>New sale on ${S.domain} at night. The invoice is saved and will be emailed to the client automatically after 05:00 UTC. Nothing to do.</p><p>${facts}<br>Price: ${esc(price)}<br>Link ($${parsed.usd}): <a href="${link}">${link}</a></p>`, email);
+        return json({ success: true, invoice: false, queued: true }, 200, origin);
+      }
+      // No storage to queue in: never lose the sale, hand it to the site inbox instead.
+      await send(env, from, admin, `sale / ${S.domain} / ${price} / ${who} / night, not queued`,
+        `<p>New sale on ${S.domain} at night. It could not be saved for the 05:00 UTC send, so nothing was emailed to the client. Please send the invoice yourself.</p><p>${facts}<br>Price: ${esc(price)}<br>Payment link for $${parsed.usd}: <a href="${link}">${link}</a></p>`, email);
+      return json({ success: true, invoice: false }, 200, origin);
+    }
+    await sendInvoice(env, { name, email, planText, parsed, link });
+    // Daytime order: also send anything still waiting from the night.
+    await flushQueue(env).catch((e) => console.error("[invoice] flush", e.message));
+    return json({ success: true, invoice: true }, 200, origin);
   } catch (err) {
+    if (seen.undo) await seen.undo().catch(() => {});
     console.error("[invoice]", err.message);
     return json({ success: false, error: err.message }, 500, origin);
   }
 }
 
-return { handle, hookScript, invoiceEmail, parsePlan, describe, linkFor, money };
+return { handle, flushQueue, hookScript, invoiceEmail, parsePlan, describe, linkFor, money };
 })();
 
 // ── end invoice emails ──
