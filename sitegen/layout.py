@@ -128,7 +128,7 @@ def _head(p: Page):
 
 
 def brand_html():
-    return (f'<a class="brand" href="/" aria-label="{C.NAME} home">'
+    return (f'<a class="brand" href="/ca/" aria-label="{C.NAME} home">'
             f'<picture><source srcset="/favicon.svg?v=6" media="(prefers-reduced-motion: reduce)">'
             f'<img src="/brand/logo-animated.svg?v=6" width="38" height="38" alt=""></picture>'
             f'<span class="wm"><span class="r">IPTV</span><span class="c">Maple</span></span></a>')
@@ -148,8 +148,8 @@ def _header(p: Page):
     {brand_html()}
     <nav class="nav" aria-label="Main">{nav}</nav>
     <div class="header-cta">
-      <a class="btn btn--ghost btn--sm" href="/try-iptv-canada/">Free trial</a>
-      <a class="btn btn--primary btn--sm" href="/iptv-plans-canada/">Get started</a>
+      <a class="btn btn--ghost btn--sm" href="/ca/try-iptv-canada/">Free trial</a>
+      <a class="btn btn--primary btn--sm" href="/ca/iptv-plans-canada/">Get started</a>
       <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span></button>
     </div>
   </div>
@@ -157,8 +157,8 @@ def _header(p: Page):
 </div>
 <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
   {nav}
-  <a class="btn btn--primary btn--lg btn--block" href="/iptv-plans-canada/">See plans — 50% off</a>
-  <a class="btn btn--ghost btn--lg btn--block" href="/try-iptv-canada/">Start free 24h trial</a>
+  <a class="btn btn--primary btn--lg btn--block" href="/ca/iptv-plans-canada/">See plans — 50% off</a>
+  <a class="btn btn--ghost btn--lg btn--block" href="/ca/try-iptv-canada/">Start free 24h trial</a>
 </nav>"""
 
 
@@ -182,7 +182,7 @@ def _footer():
       </ul></div>
     </div>
     <p class="footer-disclaimer"><strong>Disclaimer:</strong> {C.NAME} does not host or stream any copyrighted content. All content is provided by third-party providers.
-      Users are responsible for ensuring they have the rights to view content in their jurisdiction. <a href="/disclaimer/">Read more</a></p>
+      Users are responsible for ensuring they have the rights to view content in their jurisdiction. <a href="/ca/disclaimer/">Read more</a></p>
     <div class="footer-bottom">
       <span>© {C.YEAR} {C.NAME}. All rights reserved.</span>
       <span>Prices in USD · 7-day money-back guarantee</span>

@@ -258,7 +258,7 @@ def home():
               "image": C.SITE_URL + "/brand/og-default.jpg", "description": meta["description"],
               "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": min(p["price"] for _, p in all_plans()),
                          "highPrice": max(p["price"] for _, p in all_plans()), "offerCount": 15}, **review_ld()}
-    return Page("/", meta["title"], meta["description"], body, og_image=meta["og_image"] or C.DEFAULT_OG,
+    return Page("/ca/", meta["title"], meta["description"], body, og_image=meta["og_image"] or C.DEFAULT_OG,
                 published=meta["published"], modified=meta["modified"], jsonld=[faq_ld(FAQ), offers],
                 preload_image='href="/images/hero/canada-fan-bg-1920.webp" imagesrcset="/images/hero/canada-fan-bg-960.webp 960w, /images/hero/canada-fan-bg-1920.webp 1920w" imagesizes="100vw"')
 
@@ -270,7 +270,7 @@ SALE_COUNTRIES = ["CA", "US"]
 RETURN_POLICY = {"@type": "MerchantReturnPolicy", "applicableCountry": SALE_COUNTRIES,
                  "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow", "merchantReturnDays": 7,
                  "returnFees": "https://schema.org/FreeReturn", "refundType": "https://schema.org/FullRefund",
-                 "merchantReturnLink": C.SITE_URL + "/refund/"}
+                 "merchantReturnLink": C.SITE_URL + "/ca/refund/"}
 SHIPPING = {"@type": "OfferShippingDetails",
             "shippingRate": {"@type": "MonetaryAmount", "value": 0, "currency": "USD"},
             "shippingDestination": [{"@type": "DefinedRegion", "addressCountry": c} for c in SALE_COUNTRIES],
@@ -281,7 +281,7 @@ SHIPPING = {"@type": "OfferShippingDetails",
 
 def plan_offer(p, **extra):
     return {"@type": "Offer", **extra, "price": p["price"], "priceCurrency": "USD", "availability": "https://schema.org/InStock",
-            "url": f"{C.SITE_URL}/{p['slug']}/", "shippingDetails": SHIPPING, "hasMerchantReturnPolicy": RETURN_POLICY}
+            "url": f"{C.SITE_URL}/ca/{p['slug']}/", "shippingDetails": SHIPPING, "hasMerchantReturnPolicy": RETURN_POLICY}
 
 
 def _plans_product(meta):
@@ -307,8 +307,8 @@ def pricing_page():
 {faq_section(FAQ[:6], "Questions before you buy?")}
 {network_section()}
 {cta_band("Not sure yet? Try it free.", "Get a free 24-hour trial — no credit card, no commitment. See the quality for yourself.")}"""
-    return Page("/iptv-plans-canada/", meta["title"], meta["description"], body, og_image=meta["og_image"],
-                published=meta["published"], modified=meta["modified"], nav_active="/iptv-plans-canada/",
+    return Page("/ca/iptv-plans-canada/", meta["title"], meta["description"], body, og_image=meta["og_image"],
+                published=meta["published"], modified=meta["modified"], nav_active="/ca/iptv-plans-canada/",
                 jsonld=[faq_ld(FAQ[:6]), breadcrumb_ld([("Home", "/"), ("Pricing", "/iptv-plans-canada/")]), _plans_product(meta)])
 
 
@@ -359,9 +359,9 @@ def product_pages():
         offer = {"@type": "Product", "name": f"IPTVMaple {name}", "description": p["description"], "brand": {"@type": "Brand", "name": C.NAME},
                  "image": C.SITE_URL + (p["og_image"] or C.DEFAULT_OG),
                  "offers": plan_offer(p), **review_ld()}
-        pages.append(Page(f"/{p['slug']}/", p["title"], p["description"], body, og_image=p["og_image"] or C.DEFAULT_OG,
-                          published=p["published"], modified=p["modified"], nav_active="/iptv-plans-canada/",
-                          canonical="/iptv-plans-canada/", in_sitemap=False,  # 15 near-identical order variants: the plans page is the canonical
+        pages.append(Page(f"/ca/{p['slug']}/", p["title"], p["description"], body, og_image=p["og_image"] or C.DEFAULT_OG,
+                          published=p["published"], modified=p["modified"], nav_active="/ca/iptv-plans-canada/",
+                          canonical="/ca/iptv-plans-canada/", in_sitemap=False,
                           jsonld=[offer, breadcrumb_ld([("Home", "/"), ("Pricing", "/iptv-plans-canada/"), (name, f"/{p['slug']}/")])]))
     return pages
 
@@ -409,10 +409,9 @@ def trial_pages():
 {more}
 {trial_copy() if slug == "try-iptv-canada" else ""}
 {faq_section((TRIAL_FAQ + FAQ[:4]) if slug == "try-iptv-canada" else FAQ[:6])}"""
-        out.append(Page(f"/{slug}/", meta["title"] if slug == "landing2" else "IPTV Free Trial Canada – 24 Hours, No Card | IPTVMaple",
+        out.append(Page(f"/ca/{slug}/", meta["title"] if slug == "landing2" else "IPTV Free Trial Canada – 24 Hours, No Card | IPTVMaple",
                         meta["description"] if slug == "landing2" else "Try IPTVMaple free for 24 hours: live TV, sports, movies and series in 4K on any device. No credit card needed — get your login instantly by email and WhatsApp.",
-                        body, og_image=meta["og_image"], published=meta["published"], modified=meta["modified"], nav_active="/try-iptv-canada/",
-                        # landing2 is an ad landing page with the same form as /try-iptv-canada/ — keep it out of the index
+                        body, og_image=meta["og_image"], published=meta["published"], modified=meta["modified"], nav_active="/ca/try-iptv-canada/",
                         robots="noindex, follow" if slug == "landing2" else Page.robots, in_sitemap=slug != "landing2",
                         jsonld=[breadcrumb_ld([("Home", "/"), ("Free trial", f"/{slug}/")])]))
     return out
@@ -439,7 +438,7 @@ def thank_you():
     </div>
   </div>
 </section>"""
-    return Page("/thank-you/", meta["title"], meta["description"], body, og_image=meta["og_image"], robots="noindex, follow", in_sitemap=False)
+    return Page("/ca/thank-you/", meta["title"], meta["description"], body, og_image=meta["og_image"], robots="noindex, follow", in_sitemap=False)
 
 
 # =================================================================== CHANNELS
@@ -471,7 +470,7 @@ def channels():
 </section>
 {page_faq("channels-list")}
 {cta_band("Found your channels?", "Every plan includes the full lineup. Start watching in minutes.")}"""
-    return Page("/channels-list/", meta["title"].replace("Channels list", "IPTV Channels List – 50,000+ Channels | IPTVMaple"), meta["description"], body,
+    return Page("/ca/channels-list/", meta["title"].replace("Channels list", "IPTV Channels List – 50,000+ Channels | IPTVMaple"), meta["description"], body,
                 og_image=meta["og_image"], published=meta["published"], modified=meta["modified"],
                 jsonld=[breadcrumb_ld([("Home", "/"), ("Channels list", "/channels-list/")])])
 
@@ -508,7 +507,7 @@ def how_it_works():
 </section>
 {page_faq("how-it-works")}
 {cta_band()}"""
-    return Page("/how-it-works/", meta["title"], meta["description"], body, og_image=meta["og_image"],
+    return Page("/ca/how-it-works/", meta["title"], meta["description"], body, og_image=meta["og_image"],
                 published=meta["published"], modified=meta["modified"],
                 jsonld=[breadcrumb_ld([("Home", "/"), ("How it works", "/how-it-works/")])])
 
@@ -557,7 +556,7 @@ def referral():
 </div></div></section>
 {page_faq("refer-a-friend")}
 {cta_band("Not a customer yet?", "Join IPTVMaple today, then start earning free months by sharing it with friends.")}"""
-    return Page("/refer-a-friend/", "Refer a Friend – Get 6 Months Free | IPTVMaple", "Refer 1 friend to IPTVMaple and get 6 months free. Unlimited referrals — every successful referral adds 6 more months to your subscription.",
+    return Page("/ca/refer-a-friend/", "Refer a Friend – Get 6 Months Free | IPTVMaple", "Refer 1 friend to IPTVMaple and get 6 months free. Unlimited referrals — every successful referral adds 6 more months to your subscription.",
                 body, og_image=meta["og_image"], published=meta["published"], modified=meta["modified"],
                 jsonld=[breadcrumb_ld([("Home", "/"), ("Referral", "/refer-a-friend/")])])
 
@@ -581,9 +580,9 @@ def contact():
 <p>When you contact support, include your name, the device you use and a screenshot of any error. We answer by WhatsApp and email at {C.EMAIL}. Billing questions are handled under the <a href="/refund/">refund policy</a>, and we handle your details as described in the <a href="/privacy/">privacy policy</a>.</p>
 </div></div></section>
 {faq_section(FAQ)}"""
-    return Page("/contact/", "Contact Us – 24/7 IPTV Support | IPTVMaple", meta["description"], body, og_image=meta["og_image"],
+    return Page("/ca/contact/", "Contact Us – 24/7 IPTV Support | IPTVMaple", meta["description"], body, og_image=meta["og_image"],
                 published=meta["published"], modified=meta["modified"], jsonld=[breadcrumb_ld([("Home", "/"), ("Contact", "/contact/")]),
-                        {"@type": "ContactPage", "@id": C.SITE_URL + "/contact/#contactpage", "url": C.SITE_URL + "/contact/", "name": "Contact IPTVMaple",
+                        {"@type": "ContactPage", "@id": C.SITE_URL + "/ca/contact/#contactpage", "url": C.SITE_URL + "/ca/contact/", "name": "Contact IPTVMaple",
                          "about": {"@id": C.SITE_URL + "/#organization"}}])
 
 
@@ -637,11 +636,10 @@ def prose_pages():
             extra.append({"@type": "Article", "headline": re.sub("<[^>]+>", "", title).replace("&amp;", "&"), "datePublished": meta["published"],
                           "dateModified": meta["modified"], "author": {"@id": C.SITE_URL + "/#organization"},
                           "publisher": {"@id": C.SITE_URL + "/#organization"}, "image": C.SITE_URL + (meta.get("og_image") or C.DEFAULT_OG),
-                          "mainEntityOfPage": f"{C.SITE_URL}/{slug}/"})
+                          "mainEntityOfPage": f"{C.SITE_URL}/ca/{slug}/"})
         extra.append(breadcrumb_ld([("Home", "/"), (re.sub("<[^>]+>", "", title).replace("&amp;", "&"), f"/{slug}/")]))
-        # /landing/ and /landing3/ are ad landing pages that duplicate the cord-cutting guide: keep them out of Google's index
         dup = slug in ("landing", "landing3")
-        out.append(Page(f"/{slug}/", meta["title"], meta["description"], body, og_image=meta.get("og_image") or C.DEFAULT_OG,
+        out.append(Page(f"/ca/{slug}/", meta["title"], meta["description"], body, og_image=meta.get("og_image") or C.DEFAULT_OG,
                         og_type=kind, published=meta["published"], modified=meta["modified"], jsonld=extra,
                         robots="noindex, follow" if dup else Page.robots, in_sitemap=not dup))
     return out

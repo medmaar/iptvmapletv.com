@@ -31,15 +31,15 @@ from .seo_content import ALL
 UPDATED = "2026-09-30"
 
 HUBS = {
-    "apps": ("/iptv-apps/", "IPTV apps"),
-    "devices": ("/iptv-devices/", "Devices"),
-    "sports": ("/iptv-sports/", "Sports"),
-    "cities": ("/iptv-near-me/", "Cities"),
-    "intl": ("/iptv-international/", "International"),
-    "guides": ("/iptv-guides/", "IPTV guides"),
-    "fr": ("/iptv-quebec/", "IPTV Québec"),
-    "usa": ("/usa/", "USA"),
-    "canada": ("/canada/", "Canada"),
+    "apps": ("/ca/iptv-apps/", "IPTV apps"),
+    "devices": ("/ca/iptv-devices/", "Devices"),
+    "sports": ("/ca/iptv-sports/", "Sports"),
+    "cities": ("/ca/iptv-near-me/", "Cities"),
+    "intl": ("/ca/iptv-international/", "International"),
+    "guides": ("/ca/iptv-guides/", "IPTV guides"),
+    "fr": ("/ca/iptv-quebec/", "IPTV Québec"),
+    "usa": ("/ca/usa/", "USA"),
+    "canada": ("/ca/canada/", "Canada"),
 }
 
 TEXT = {
@@ -152,7 +152,7 @@ def _by_slug():
 
 
 def _crumbs(p, T):
-    items = [(T["home"], "/")]
+    items = [(T["home"], "/ca/")]
     if "trail" in p:  # explicit breadcrumb trail, e.g. USA → Texas for a city page
         return items + list(p["trail"]) + [(p["crumb"], "")]
     hub_url, hub_label = HUBS[p["hub"]]
@@ -165,8 +165,8 @@ def _crumbs(p, T):
 def _aside(T):
     (t1, d1, b1), (t2, d2, b2) = T["side1"], T["side2"]
     return f"""<aside>
-  <div class="card side-cta"><div class="icon" style="margin-inline:auto">{icon("play")}</div><h3>{t1}</h3><p>{d1}</p><a class="btn btn--primary btn--block" href="/try-iptv-canada/">{b1}</a></div>
-  <div class="card side-cta"><h3>{t2}</h3><p>{d2}</p><a class="btn btn--ghost btn--block" href="/iptv-plans-canada/">{b2}</a></div>
+  <div class="card side-cta"><div class="icon" style="margin-inline:auto">{icon("play")}</div><h3>{t1}</h3><p>{d1}</p><a class="btn btn--primary btn--block" href="/ca/try-iptv-canada/">{b1}</a></div>
+  <div class="card side-cta"><h3>{t2}</h3><p>{d2}</p><a class="btn btn--ghost btn--block" href="/ca/iptv-plans-canada/">{b2}</a></div>
 </aside>"""
 
 
@@ -179,7 +179,7 @@ def _hub_cards(p, T):
     if not pages:
         return ""
     cards = "".join(
-        f'<a class="card card--hover link-card reveal" href="/{q["slug"]}/"><h3>{q["crumb"]}</h3><p>{q["blurb"]}</p><span class="link-arrow">{T["explore"]}</span></a>'
+        f'<a class="card card--hover link-card reveal" href="/ca/{q["slug"]}/"><h3>{q["crumb"]}</h3><p>{q["blurb"]}</p><span class="link-arrow">{T["explore"]}</span></a>'
         for q in pages)
     return f"""<section class="section section--tight">
   <div class="container"><div class="grid grid-3 link-cards">{cards}</div></div>
@@ -206,11 +206,11 @@ def render(p):
     by = _by_slug()
     crumb = _crumbs(p, T)
     buttons = (f'<div class="btn-row" style="justify-content:center;margin-top:28px">'
-               f'<a class="btn btn--primary btn--lg" href="/try-iptv-canada/">{T["trial"]}</a>'
-               f'<a class="btn btn--ghost btn--lg" href="/iptv-plans-canada/">{T["plans"]}</a></div>')
-    related = "".join(f'<li><a href="/{s}/">{by[s]["crumb"]}</a> — {by[s]["blurb"]}</li>' for s in p.get("related", []))
+               f'<a class="btn btn--primary btn--lg" href="/ca/try-iptv-canada/">{T["trial"]}</a>'
+               f'<a class="btn btn--ghost btn--lg" href="/ca/iptv-plans-canada/">{T["plans"]}</a></div>')
+    related = "".join(f'<li><a href="/ca/{s}/">{by[s]["crumb"]}</a> — {by[s]["blurb"]}</li>' for s in p.get("related", []))
     hub_url, hub_label = HUBS[p["hub"]]
-    if hub_url and not p.get("hub_page") and hub_url.strip("/") not in p.get("related", []):
+    if hub_url and not p.get("hub_page") and hub_url.rstrip("/").split("/")[-1] not in p.get("related", []):
         related += f'<li><a href="{hub_url}">{T["all_label"].format(label=hub_label)}</a></li>'
     related_html = f'<h2>{T["related"]}</h2><ul class="related-list">{related}</ul>' if related else ""
     published = p.get("published", UPDATED)
@@ -222,9 +222,9 @@ def render(p):
     if p.get("service_area"):
         lo, hi = min(x["price"] for _, x in all_plans()), max(x["price"] for _, x in all_plans())
         price_note = (f'<p class="meta-line">Plans from ${lo:g} (1 month) to ${hi:g} (12 months, most screens), in US dollars. '
-                      f'<a href="/iptv-plans-canada/">See every plan</a>.</p>' if lang != "fr" else
-                      f'<p class="meta-line">Forfaits de {lo:g} $ US (1 mois) à {hi:g} $ US (12 mois, le plus d’écrans). '
-                      f'<a href="/iptv-plans-canada/">Voir tous les forfaits</a>.</p>')
+                      f'<a href="/ca/iptv-plans-canada/">See every plan</a>.</p>' if lang != "fr" else
+                      f"<p class=\"meta-line\">Forfaits de {lo:g} $ US (1 mois) à {hi:g} $ US (12 mois, le plus d’écrans). "
+                      f'<a href="/ca/iptv-plans-canada/">Voir tous les forfaits</a>.</p>')
     body = f"""{page_hero(p["h1"], p["lead"], p["kicker"], crumb, buttons)}
 <section class="section section--after-hero">
   <div class="container page-grid">
@@ -242,7 +242,7 @@ def render(p):
 {_hub_cards(p, T) if p.get("hub_page") or p.get("children") else ""}
 {faq_section([{"q": q, "a": a} for q, a in p["faq"]], T["faq"], lang) if p.get("faq") else ""}
 {cta_band(p.get("cta_title", T["cta_title"]), p.get("cta_text", T["cta_text"]), lang=lang)}"""
-    url = f"/{p['slug']}/"
+    url = f"/ca/{p['slug']}/"
     ld = [breadcrumb_ld([(label, href or url) for label, href in crumb])]
     if p.get("faq"):
         ld.append(faq_ld([{"q": q, "a": a} for q, a in p["faq"]]))
@@ -253,7 +253,7 @@ def render(p):
                    "provider": {"@id": C.SITE_URL + "/#organization"}, "areaServed": {"@type": kind, "name": name},
                    "url": C.SITE_URL + url,
                    "offers": {"@type": "AggregateOffer", "priceCurrency": "USD", "lowPrice": min(x["price"] for _, x in all_plans()), "highPrice": max(x["price"] for _, x in all_plans()),
-                              "url": C.SITE_URL + "/iptv-plans-canada/"}})
+                              "url": C.SITE_URL + "/ca/iptv-plans-canada/"}})
     else:
         ld.append({"@type": "Article", "headline": _plain(p["h1"])[:110], "description": p["description"],
                    "datePublished": published, "dateModified": updated, "inLanguage": locale,
