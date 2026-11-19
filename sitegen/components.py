@@ -69,8 +69,12 @@ def crumbs(items):
 
 
 def breadcrumb_ld(items):
+    def _ca(href):
+        if href and href.startswith("/") and not href.startswith("/ca/"):
+            return "/ca" + href
+        return href
     return {"@type": "BreadcrumbList", "itemListElement": [
-        {"@type": "ListItem", "position": i + 1, "name": label, **({"item": C.SITE_URL + href} if href else {})}
+        {"@type": "ListItem", "position": i + 1, "name": label, **({"item": C.SITE_URL + _ca(href)} if href else {})}
         for i, (label, href) in enumerate(items)]}
 
 

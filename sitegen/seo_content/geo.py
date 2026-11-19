@@ -276,8 +276,8 @@ def ca_city(c):
     fr = pslug == "quebec" or city in ("Moncton", "Ottawa")
     alternates = []
     if pslug == "quebec":
-        fr_url = f"/fr/canada/quebec/{FR_SLUGS.get(city, cslug)}/"
-        alternates = [("en-CA", f"/{slug}/"), ("fr-CA", fr_url)]
+        fr_url = f"/ca/fr/canada/quebec/{FR_SLUGS.get(city, cslug)}/"
+        alternates = [("en-CA", f"/ca/{slug}/"), ("fr-CA", fr_url)]
     body = f"""
 <h2>Why {city} is switching to IPTV</h2>
 <p>{note}</p>
@@ -327,8 +327,8 @@ def ca_province(pv):
                 teams.append(t)
     st_txt = _list(stations) if stations else "CBC, CTV, Global and Citytv national feeds"
     city_links = _list(f'<a href="/{CA_CITY_SLUG[c[1]]}/">{escape(c[1])}</a>' for c in cities)
-    alternates = [("en-CA", "/canada/quebec/"), ("fr-CA", "/iptv-quebec/")] if pslug == "quebec" else \
-        [("en-CA", "/canada/new-brunswick/"), ("fr-CA", "/fr/canada/nouveau-brunswick/")] if pslug == "new-brunswick" else []
+    alternates = [("en-CA", "/ca/canada/quebec/"), ("fr-CA", "/ca/iptv-quebec/")] if pslug == "quebec" else \
+        [("en-CA", "/ca/canada/new-brunswick/"), ("fr-CA", "/ca/fr/canada/nouveau-brunswick/")] if pslug == "new-brunswick" else []
     _keys = list(PROV)
     _px = _keys.index(pslug) if pslug in _keys else 0
     _po = [PROV[_keys[(_px + k) % len(_keys)]] for k in range(1, 4)]
@@ -415,7 +415,7 @@ def fr_city(c):
     ]
     return dict(
         slug=frslug, hub="fr", lang="fr", trail=[("IPTV Québec", "/iptv-quebec/")], service_area=("City", f"{nom}, QC"),
-        alternates=[("en-CA", f"/{CA_CITY_SLUG[city]}/"), ("fr-CA", f"/{frslug}/")],
+        alternates=[("en-CA", f"/ca/{CA_CITY_SLUG[city]}/"), ("fr-CA", f"/ca/{frslug}/")],
         title=(f"IPTV {nom} : télé en direct et sport en 4K | IPTVMaple" if len(nom) <= 12 else f"IPTV {nom} : télé en direct et sport | IPTVMaple"),
         description=f"IPTV à {nom} : {stations[0] if stations else 'TVA et ICI Radio-Canada'}, {team0} et 50 000+ chaînes en 4K, sans contrat. Essai gratuit de 24 h, soutien en français.",
         kicker="IPTV Québec", h1=f'IPTV à <span class="grad-text">{escape(nom)}</span>',
@@ -433,7 +433,7 @@ def fr_new_brunswick():
     st_txt = _list(stations, "et") if stations else "ICI Radio-Canada Acadie"
     return dict(
         slug="fr/canada/nouveau-brunswick", hub="fr", lang="fr", trail=[("IPTV Québec", "/iptv-quebec/")], service_area=("State", "Nouveau-Brunswick"),
-        alternates=[("en-CA", "/canada/new-brunswick/"), ("fr-CA", "/fr/canada/nouveau-brunswick/")],
+        alternates=[("en-CA", "/ca/canada/new-brunswick/"), ("fr-CA", "/ca/fr/canada/nouveau-brunswick/")],
         title="IPTV Nouveau-Brunswick : télé bilingue en 4K | IPTVMaple",
         description="IPTV au Nouveau-Brunswick : ICI Radio-Canada Acadie, TVA, RDS et 50 000+ chaînes en 4K, en français et en anglais. Essai gratuit 24 h.",
         kicker="IPTV Acadie", h1='IPTV au <span class="grad-text">Nouveau-Brunswick</span>',

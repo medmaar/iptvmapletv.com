@@ -19,6 +19,21 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.join(ROOT, "src", "static")
 OUT = os.path.join(ROOT, "public")
 
+_CA_SKIP = ("/ca/", "/api/", "/go/")
+_EXT_RE = re.compile(r"\.[a-z0-9]{2,12}$")
+
+
+def _add_ca(url):
+    if any(url.startswith(s) for s in _CA_SKIP):
+        return url
+    if _EXT_RE.search(url.split("?")[0].split("#")[0].rstrip("/")):
+        return url
+    return "/ca" + url
+
+
+def rewrite_links(html):
+    return re.sub(r'href=(["\'])(/[^"\']*)\1', lambda m: f'href={m.group(1)}{_add_ca(m.group(2))}{m.group(1)}', html)
+
 
 def write(rel, text):
     p = os.path.join(OUT, rel.lstrip("/"))
@@ -72,25 +87,24 @@ def llms_txt():
              "> Premium IPTV service for Canada (English and French): 50,000+ live channels including TSN, Sportsnet, RDS, TVA, CBC and CTV,",
              "> 300,000+ movies and series in HD and 4K, plans from $9 USD on 1-5 devices, free 24-hour trial, 7-day money-back guarantee, 24/7 support on WhatsApp.",
              "", "## Main pages",
-             f"- Plans and prices: {C.SITE_URL}/iptv-plans-canada/", f"- Free 24-hour trial: {C.SITE_URL}/try-iptv-canada/",
-             f"- Channels list: {C.SITE_URL}/channels-list/", f"- How it works: {C.SITE_URL}/how-it-works/", f"- Contact: {C.SITE_URL}/contact/"]
+             f"- Plans and prices: {C.SITE_URL}/ca/iptv-plans-canada/", f"- Free 24-hour trial: {C.SITE_URL}/ca/try-iptv-canada/",
+             f"- Channels list: {C.SITE_URL}/ca/channels-list/", f"- How it works: {C.SITE_URL}/ca/how-it-works/", f"- Contact: {C.SITE_URL}/ca/contact/"]
     for key, (_, label) in HUBS.items():
-        # location pages (hundreds of city / state guides) are summarised by their hubs below, not listed one by one
         pages = [p for p in ALL if p["hub"] == key and not p.get("service_area") and not p["slug"].startswith("fr/canada/")]
         if pages:
             lines += ["", f"## {label or 'Guides'}"]
-            lines += [f"- {unescape(re.sub('<[^>]+>', '', p['h1']))}: {C.SITE_URL}/{p['slug']}/" for p in pages]
+            lines += [f"- {unescape(re.sub('<[^>]+>', '', p['h1']))}: {C.SITE_URL}/ca/{p['slug']}/" for p in pages]
     lines += ["", "## Locations",
-              f"- IPTV across Canada by province and city: {C.SITE_URL}/canada/",
-              f"- IPTV across the USA by state and city: {C.SITE_URL}/usa/",
-              f"- IPTV near me (all cities): {C.SITE_URL}/iptv-near-me/",
-              f"- IPTV au Québec (en français): {C.SITE_URL}/iptv-quebec/"]
+              f"- IPTV across Canada by province and city: {C.SITE_URL}/ca/canada/",
+              f"- IPTV across the USA by state and city: {C.SITE_URL}/ca/usa/",
+              f"- IPTV near me (all cities): {C.SITE_URL}/ca/iptv-near-me/",
+              f"- IPTV au Québec (en français): {C.SITE_URL}/ca/iptv-quebec/"]
     write("llms.txt", "\n".join(lines) + "\n")
 
 
 def manifest():
     write("site.webmanifest", json.dumps({
-        "name": C.LEGAL_NAME, "short_name": C.NAME, "start_url": "/", "display": "standalone",
+        "name": C.LEGAL_NAME, "short_name": C.NAME, "start_url": "/ca/", "display": "standalone",
         "background_color": "#06070b", "theme_color": "#06070b",
         "icons": [{"src": "/brand/icon-192.png?v=4", "sizes": "192x192", "type": "image/png"},
                   {"src": "/brand/icon-512.png?v=4", "sizes": "512x512", "type": "image/png"}],
@@ -125,7 +139,7 @@ def check_layout(pages):
             bad.append(f"{p.path}: missing shared header/footer")
         if html.count("<h1") != 1:
             bad.append(f"{p.path}: has {html.count('<h1')} <h1> titles (must be exactly 1)")
-        if p.path != "/" and not p.body.lstrip().startswith('<section class="page-hero">'):
+        if p.path not in ("/", "/ca/") and not p.body.lstrip().startswith('<section class="page-hero">'):
             bad.append(f"{p.path}: must start with page_hero() so the title area matches every other page")
     indexed = [p for p in pages if "noindex" not in p.robots]
     for attr in ("title", "description"):
@@ -158,13 +172,13 @@ def main():
     for p in pages:
         assert p.path not in seen, f"duplicate page {p.path}"
         seen.add(p.path)
-        write(p.path + "index.html", layout.render(p))
+        write(p.path + "index.html", rewrite_links(layout.render(p)))
     bad = check_redirects(pages)
     if bad:
         print("Redirects that would hide real pages:\n  " + "\n  ".join(bad))
         sys.exit(1)
     from sitegen.pages import not_found
-    write("404.html", layout.render(not_found()))   # Cloudflare Pages serves this for unknown URLs (with a 404 status)
+    write("404.html", rewrite_links(layout.render(not_found())))  # Cloudflare Pages serves this for unknown URLs (with a 404 status)
     sitemaps(pages)
     llms_txt()
     manifest()
