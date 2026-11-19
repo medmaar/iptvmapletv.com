@@ -57,4 +57,4 @@ jobs:
           curl -sS "$API/$CF_ACCOUNT/workers/scripts/$WORKER/secrets" -H "Authorization: Bearer $CF_TOKEN" \
             | python3 -c "import sys,json; d=json.load(sys.stdin); print('Worker secrets:', [s['name'] for s in d.get('result') or []])"
           sleep 5
-          curl -sS -m 30 "https://$WORKER.medmaar.workers.dev/?debug=1" || true
+          curl -sS -m 30 "https://$WORKER.medmaar.workers.dev/?debug=${{ secrets.DEBUG_TOKEN }}" || true

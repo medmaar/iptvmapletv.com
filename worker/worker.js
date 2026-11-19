@@ -111,13 +111,43 @@ function cors(request) {
   };
 }
 
+// ── trial bot guard ──────────────────────────────────────────────────────────
+// Runs before any panel call or email. Returns a reason string for a bot, or "".
+// Bots get a normal-looking reply but no trial line, no credits used, no emails.
+const TRIAL_DISPOSABLE = /@(mailinator|guerrillamail|sharklasers|10minutemail|temp-?mail|tempmail|yopmail|trashmail|getnada|dispostable|maildrop|fakeinbox|throwawaymail|mintemail|mohmal|emailondeck|moakt|tmpmail|burnermail)\./i;
+async function trialBotCheck(request, env, body, name, email) {
+  const b = body || {};
+  // 1. Honeypot fields: hidden inputs real visitors never fill
+  if (String(b.website || b.hp || b.company_url || "").trim()) return "honeypot";
+  // 2. Form submitted too fast (ts = time the form was shown, ms)
+  const ts = Number(b.ts || b.form_ts || 0);
+  if (ts > 1e12 && Date.now() - ts < 3000) return "too_fast";
+  // 3. Random-looking names such as "hiiujqqrhj5626395654"
+  const n = String(name || "").trim();
+  if ((n.match(/\d/g) || []).length >= 4) return "name_digits";
+  if (/https?:|www\.|<|>/i.test(n)) return "name_link";
+  if (n.length >= 12 && !/\s/.test(n) && !/[aeiouyäöüåæøéèàâêîôûáíóú]{1}.*[aeiouyäöüåæøéèàâêîôûáíóú]/i.test(n)) return "name_no_vowels";
+  // 4. Throwaway mailboxes
+  if (TRIAL_DISPOSABLE.test(String(email || ""))) return "disposable_email";
+  // 5. Max 3 trial requests per IP per 24h
+  const kv = env.TRIALS || env.TRIAL_KV;
+  const ip = request.headers.get("CF-Connecting-IP") || "";
+  if (kv && ip) {
+    const key = `rl:trial:${ip}`;
+    const count = Number(await kv.get(key) || 0);
+    if (count >= 3) return "ip_rate_limit";
+    try { await kv.put(key, String(count + 1), { expirationTtl: 24 * 60 * 60 }); } catch (_) {}
+  }
+  return "";
+}
+
 async function handleFetch(request, env) {
   const headers = cors(request);
   const res = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { ...headers, "Content-Type": "application/json" } });
   if (request.method === "OPTIONS") return new Response(null, { headers });
 
   if (request.method === "GET") {
-    if (new URL(request.url).searchParams.has("debug")) {
+    if (new URL(request.url).searchParams.has("debug") && env.DEBUG_TOKEN && new URL(request.url).searchParams.get("debug") === env.DEBUG_TOKEN) {
       let panel;
       try { panel = env.PANEL_API_KEY ? (await panelGet(env, { action: "reseller_info" }), "reachable") : "PANEL_API_KEY not set"; }
       catch (err) { panel = `error: ${err.message}`; }
@@ -143,6 +173,9 @@ async function handleFetch(request, env) {
   if (!name || !email || whatsapp.replace(/\D/g, "").length < 7) {
     return res({ success: false, message: "Please fill in your first name, email and WhatsApp number." }, 400);
   }
+
+  const _bot = await trialBotCheck(request, env, body, name, email);
+  if (_bot) { console.log(`[bot] trial blocked (${_bot}) ${email}`); return res({ success: true }); }
 
   let result;
   try {
