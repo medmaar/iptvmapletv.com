@@ -129,15 +129,7 @@ async function trialBotCheck(request, env, body, name, email) {
   if (n.length >= 12 && !/\s/.test(n) && !/[aeiouyäöüåæøéèàâêîôûáíóú]{1}.*[aeiouyäöüåæøéèàâêîôûáíóú]/i.test(n)) return "name_no_vowels";
   // 4. Throwaway mailboxes
   if (TRIAL_DISPOSABLE.test(String(email || ""))) return "disposable_email";
-  // 5. Max 3 trial requests per IP per 24h
-  const kv = env.TRIALS || env.TRIAL_KV;
-  const ip = request.headers.get("CF-Connecting-IP") || "";
-  if (kv && ip) {
-    const key = `rl:trial:${ip}`;
-    const count = Number(await kv.get(key) || 0);
-    if (count >= 3) return "ip_rate_limit";
-    try { await kv.put(key, String(count + 1), { expirationTtl: 24 * 60 * 60 }); } catch (_) {}
-  }
+  // (No per-IP limit: it silently blocked real customers on shared networks and repeat requests.)
   return "";
 }
 
