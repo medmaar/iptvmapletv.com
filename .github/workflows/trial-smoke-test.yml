@@ -2,7 +2,7 @@ name: Trial smoke test (all sites)
 
 # Manual only: sends one live "Claude Test" trial request to every site's trial endpoint from a GitHub
 # runner and prints each answer. Each test creates a real panel line named after the site's help@ inbox.
-# PASS = automatic trial sent. FALLBACK = the site switched to a manual trial (reason shown when available).
+# PASS = automatic trial sent and emailed. FALLBACK = the site switched to a manual trial (reason shown when available).
 on:
   workflow_dispatch:
 
@@ -39,6 +39,7 @@ jobs:
           code=$(curl -sS -m 60 -o out.txt -w '%{http_code}' -X POST "$URL" -H "Content-Type: application/json" -H "Origin: https://$SITE" -d "$body" || echo 000)
           echo "HTTP $code"; cat out.txt; echo
           if grep -q '"pending"' out.txt || grep -q '"manual"' out.txt; then echo "::error::$SITE FALLBACK (manual trial)"; exit 1; fi
+          if grep -q '"warning"' out.txt || grep -q '"emailed":false' out.txt; then echo "::error::$SITE line created but the email failed"; exit 1; fi
           if [ "$SITE" = iptvmapletv.com ]; then grep -q '"email"' out.txt || { echo "::error::$SITE FAIL"; exit 1; }
           elif [ "$SITE" = mojo4k.uk ]; then grep -q '"ok":true' out.txt || { echo "::error::$SITE FAIL"; exit 1; }
           else grep -Eq '"success": ?true' out.txt || { echo "::error::$SITE FAIL"; exit 1; }; fi
