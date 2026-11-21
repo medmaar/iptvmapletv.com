@@ -1,0 +1,18 @@
+name: Trial smoke test
+
+# Manual only: sends one live "Claude Test" trial request to the trial worker from a GitHub runner
+# (a fresh IP, so it isn't blocked by the 3-per-IP daily limit) and prints the worker's answer.
+# {"success":true,"email":...} = automatic trial sent. {"manual":true,"reason":...} = fell back to manual.
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test trial
+        run: |
+          curl -sS -m 40 -w '\nHTTP %{http_code}\n' -X POST "https://iptv-trial-iptvmapletv.medmaar.workers.dev/" \
+            -H "Content-Type: application/json" -H "Origin: https://iptvmapletv.com" \
+            -d '{"name":"Claude Test","email":"help@iptvmapletv.com","whatsapp":"+1 782 802 6280","country":"Test","page":"/claude-test"}' | tee out.txt
+          grep -q '"email"' out.txt
