@@ -193,7 +193,7 @@ async function handleFetch(request, env) {
       // Not automated (missing secret, panel or email failure, daily cap): the site falls back to the
       // manual lead form so the team sends the trial by hand.
       console.error("[manual]", result.reason);
-      return res({ success: false, manual: true }, 503);
+      return res({ success: false, manual: true, reason: String(result.reason || "").replace(/api_key=[^&\s]+/g, "api_key=***").slice(0, 200) }, 503);
   }
 }
 
