@@ -1,18 +1,45 @@
-name: Trial smoke test
+name: Trial smoke test (all sites)
 
-# Manual only: sends one live "Claude Test" trial request to the trial worker from a GitHub runner
-# (a fresh IP, so it isn't blocked by the 3-per-IP daily limit) and prints the worker's answer.
-# {"success":true,"email":...} = automatic trial sent. {"manual":true,"reason":...} = fell back to manual.
+# Manual only: sends one live "Claude Test" trial request to every site's trial endpoint from a GitHub
+# runner and prints each answer. Each test creates a real panel line named after the site's help@ inbox.
+# PASS = automatic trial sent. FALLBACK = the site switched to a manual trial (reason shown when available).
 on:
   workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { site: buyiptvnorway.com,    url: "https://iptv-trial-buyiptvnorway.medmaar.workers.dev/" }
+          - { site: flimmerkanal.de,      url: "https://iptv-trial-flimmerkanal.medmaar.workers.dev/" }
+          - { site: iptvmapletv.com,      url: "https://iptv-trial-iptvmapletv.medmaar.workers.dev/" }
+          - { site: iptvmojo.com,         url: "https://iptv-trial-iptvmojo.medmaar.workers.dev/" }
+          - { site: iptvv.de,             url: "https://iptv-trial-iptvvde.medmaar.workers.dev/" }
+          - { site: maple4k.ca,           url: "https://iptv-trial-maple4k.medmaar.workers.dev/" }
+          - { site: maplehd.ca,           url: "https://iptv-trial-maplehd.medmaar.workers.dev/" }
+          - { site: maplestreamtv.ca,     url: "https://iptv-trial-maplestreamtv.medmaar.workers.dev/" }
+          - { site: mojo4k.de,            url: "https://iptv-trial-mojo4kde.medmaar.workers.dev/" }
+          - { site: mojo4k.fr,            url: "https://iptv-trial-mojo4kfr.medmaar.workers.dev/" }
+          - { site: mojo4ktv.com,         url: "https://iptv-trial-mojo4ktv.medmaar.workers.dev/" }
+          - { site: norgesiptv.com,       url: "https://iptv-trial-norgesiptv.medmaar.workers.dev/" }
+          - { site: streambleu.fr,        url: "https://iptv-trial-streambleu.medmaar.workers.dev/" }
+          - { site: streamdeutschland.de, url: "https://iptv-trial-streamdeutschland.medmaar.workers.dev/" }
+          - { site: mojo4k.uk,            url: "https://mojo4k.uk/api/trial" }
+    name: ${{ matrix.site }}
     steps:
       - name: Send test trial
+        env:
+          SITE: ${{ matrix.site }}
+          URL: ${{ matrix.url }}
         run: |
-          curl -sS -m 40 -w '\nHTTP %{http_code}\n' -X POST "https://iptv-trial-iptvmapletv.medmaar.workers.dev/" \
-            -H "Content-Type: application/json" -H "Origin: https://iptvmapletv.com" \
-            -d '{"name":"Claude Test","email":"help@iptvmapletv.com","whatsapp":"+1 782 802 6280","country":"Test","page":"/claude-test"}' | tee out.txt
-          grep -q '"email"' out.txt
+          body=$(printf '{"name":"Claude Test","first_name":"Claude Test","email":"help@%s","whatsapp":"+1 782 802 6280","country":"Test","device":"Test","notes":"Claude end-to-end test - delete this line","page":"/claude-test"}' "$SITE")
+          code=$(curl -sS -m 60 -o out.txt -w '%{http_code}' -X POST "$URL" -H "Content-Type: application/json" -H "Origin: https://$SITE" -d "$body" || echo 000)
+          echo "HTTP $code"; cat out.txt; echo
+          if grep -q '"pending"' out.txt || grep -q '"manual"' out.txt; then echo "::error::$SITE FALLBACK (manual trial)"; exit 1; fi
+          if [ "$SITE" = iptvmapletv.com ]; then grep -q '"email"' out.txt || { echo "::error::$SITE FAIL"; exit 1; }
+          elif [ "$SITE" = mojo4k.uk ]; then grep -q '"ok":true' out.txt || { echo "::error::$SITE FAIL"; exit 1; }
+          else grep -Eq '"success": ?true' out.txt || { echo "::error::$SITE FAIL"; exit 1; }; fi
+          echo "PASS $SITE"
