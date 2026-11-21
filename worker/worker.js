@@ -800,7 +800,7 @@ export default {
 };
 
 async function panelGet(env, params) {
-  const qs = new URLSearchParams({ ...params, api_key: env.PANEL_API_KEY });
+  const qs = new URLSearchParams({ ...params, api_key: String(env.PANEL_API_KEY || "").trim() });
   const res = await fetch(`${PANEL_API}?${qs}`, { signal: timeout(12000) });
   const text = (await res.text()).trim();
   if (!text.startsWith("[") && !text.startsWith("{")) throw new Error(`non-JSON reply: ${text.slice(0, 160)}`);
