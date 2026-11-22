@@ -5,6 +5,11 @@ name: Trial smoke test (all sites)
 # PASS = automatic trial sent and emailed. FALLBACK = the site switched to a manual trial (reason shown when available).
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: "Test only these sites (comma separated, e.g. buyiptvnorway.com,flimmerkanal.de). Empty = all."
+        required: false
+        default: ""
 
 jobs:
   test:
@@ -34,7 +39,9 @@ jobs:
         env:
           SITE: ${{ matrix.site }}
           URL: ${{ matrix.url }}
+          ONLY: ${{ inputs.only }}
         run: |
+          if [ -n "$ONLY" ] && ! echo ",$ONLY," | tr -d ' ' | grep -q ",$SITE,"; then echo "skipped"; exit 0; fi
           body=$(printf '{"name":"Claude Test","first_name":"Claude Test","email":"help@%s","whatsapp":"+1 782 802 6280","country":"Test","device":"Test","notes":"Claude end-to-end test - delete this line","page":"/claude-test"}' "$SITE")
           code=$(curl -sS -m 60 -o out.txt -w '%{http_code}' -X POST "$URL" -H "Content-Type: application/json" -H "Origin: https://$SITE" -d "$body" || echo 000)
           echo "HTTP $code"; cat out.txt; echo
